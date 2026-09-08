@@ -1,0 +1,20 @@
+{
+  "name": "immosim",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Analyse d'annonce immobilière et simulateur de rentabilité",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node tests/calculs.test.mjs && playwright test",
+    "test:unit": "node tests/calculs.test.mjs",
+    "test:e2e": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "build:loyers": "node tools/build-loyers.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

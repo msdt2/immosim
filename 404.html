@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ImmoSim — Redirection</title>
+<meta name="robots" content="noindex"/>
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg"/>
+<style>
+  body{margin:0;background:#09090f;color:#f5f5f7;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}
+  h1{color:#dba84a;font-size:1.5rem;margin-bottom:8px}
+  p{margin:8px 0;opacity:.8}
+  a{color:#dba84a}
+</style>
+<script>
+  // Redirection douce vers l'index principal en préservant le chemin demandé
+  (function () {
+    var segments = location.pathname.split('/');
+    // Sur GitHub Pages: /immosim/page-inconnue -> base = /immosim
+    var base = segments.slice(0, -1).join('/') || '/';
+    if (!base.endsWith('/')) base += '/';
+    try { sessionStorage.setItem('immosim_redirect_from', location.pathname + location.search + location.hash); } catch (e) {}
+    location.replace(base);
+  })();
+</script>
+</head>
+<body>
+<h1>ImmoSim</h1>
+<p>Page introuvable — redirection vers l'accueil…</p>
+<p><a href="/">Retour à l'accueil</a></p>
+</body>
+</html>

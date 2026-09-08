@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+
+<!-- SEO de base -->
+<title>ImmoSim — Simulateur de rentabilité immobilière gratuit</title>
+<meta name="description" content="ImmoSim est un simulateur gratuit pour analyser la rentabilité d'un investissement immobilier locatif : cash-flow, fiscalité, capacité d'emprunt, portefeuille et export PDF."/>
+<meta name="keywords" content="simulateur immobilier, rentabilité locative, calcul cash-flow, capacité d'emprunt, investissement immobilier, fiscalité location, LMNP, Pinel, déficit foncier"/>
+<meta name="author" content="ImmoSim"/>
+<meta name="robots" content="index,follow"/>
+<meta name="googlebot" content="index,follow"/>
+<link rel="canonical" href="https://VOTRE-PSEUDO.github.io/immosim/"/>
+
+<!-- Apparence système -->
+<meta name="theme-color" content="#dba84a" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#1a1a24" media="(prefers-color-scheme: light)"/>
+<meta name="color-scheme" content="dark light"/>
+<meta name="format-detection" content="telephone=no"/>
+
+<!-- Open Graph (Facebook, LinkedIn, Discord, etc.) -->
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="ImmoSim"/>
+<meta property="og:title" content="ImmoSim — Simulateur de rentabilité immobilière"/>
+<meta property="og:description" content="Analysez la rentabilité d'un investissement immobilier locatif et préparez un dossier patrimonial complet en quelques minutes."/>
+<meta property="og:url" content="https://VOTRE-PSEUDO.github.io/immosim/"/>
+<meta property="og:image" content="https://VOTRE-PSEUDO.github.io/immosim/assets/icons/icon-512.png"/>
+<meta property="og:image:width" content="512"/>
+<meta property="og:image:height" content="512"/>
+<meta property="og:image:alt" content="Logo ImmoSim"/>
+<meta property="og:locale" content="fr_FR"/>
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="ImmoSim — Simulateur de rentabilité immobilière"/>
+<meta name="twitter:description" content="Analysez la rentabilité d'un investissement immobilier locatif et préparez un dossier patrimonial complet."/>
+<meta name="twitter:image" content="https://VOTRE-PSEUDO.github.io/immosim/assets/icons/icon-512.png"/>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest"/>
+<meta name="application-name" content="ImmoSim"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ImmoSim"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+
+<!-- Favicons / Icônes -->
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png"/>
+<link rel="mask-icon" href="assets/icons/favicon.svg" color="#dba84a"/>
+
+<!-- Données structurées Schema.org pour Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "ImmoSim",
+  "description": "Simulateur de rentabilité immobilière, capacité d'emprunt, fiscalité et gestion de portefeuille locatif.",
+  "url": "https://VOTRE-PSEUDO.github.io/immosim/",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any (Web)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  },
+  "inLanguage": "fr-FR",
+  "featureList": [
+    "Simulation de rentabilité locative",
+    "Calcul de capacité d'emprunt",
+    "Analyse fiscale (LMNP, foncier, micro-BIC)",
+    "Gestion de portefeuille immobilier",
+    "Pipeline d'opportunités et shortlist",
+    "Export PDF, CSV et JSON",
+    "Mode hors-ligne PWA"
+  ]
+}
+</script>
+
+<!-- Préchargement réseau pour gagner en performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com"/>
+<link rel="dns-prefetch" href="https://unpkg.com"/>
+
+<!-- Polices et bibliothèques externes -->
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="assets/css/styles.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+
+<!-- Styles inline conservés du fichier original -->
+<style>
+/* Cartes radio pour le sélecteur de décote bancaire */
+.decote-card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  padding:12px 8px;
+  background:var(--bg1);
+  border:2px solid var(--bd);
+  border-radius:var(--r);
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:center;
+  user-select:none;
+}
+.decote-card input[type=radio]{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+  width:0;
+  height:0;
+}
+.decote-card:hover{
+  border-color:var(--gold);
+  background:var(--ga);
+}
+.decote-card:has(input:checked){
+  border-color:var(--gold);
+  background:var(--ga);
+  box-shadow:0 0 0 1px var(--gold) inset;
+}
+.decote-card .dc-pct{
+  font-size:1.35rem;
+  font-weight:800;
+  color:var(--ink);
+  line-height:1;
+}
+.decote-card:has(input:checked) .dc-pct{
+  color:var(--gold);
+}
+.decote-card .dc-desc{
+  font-size:.62rem;
+  color:var(--ink3);
+  line-height:1.3;
+  font-weight:500;
+}
+@media (max-width:600px){
+  .decote-card{padding:10px 4px}
+  .decote-card .dc-pct{font-size:1.15rem}
+  .decote-card .dc-desc{font-size:.56rem}
+}
+</style>
+
+<!-- Mise à jour offline / PWA -->
+<script src="assets/js/sw-register.js" defer></script>
+<!-- Système de délégation d'événements (remplace progressivement les onclick inline) -->
+<script src="assets/js/event-handlers.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#view-dashboard">Aller au contenu principal</a>
+<noscript>
+  <div style="padding:12px 16px;background:#ef6565;color:#fff;font-family:system-ui,sans-serif;text-align:center">
+    ImmoSim nécessite JavaScript pour fonctionner correctement.
+  </div>
+</noscript>
+
+<!-- ════════════════ TOPBAR ════════════════ -->
+<nav class="topbar">
+  <div class="brand">ImmoSim <sup>V9</sup></div>
+  <div class="nav-sep"></div>
+  <div class="desk-nav">
+    <button class="nb active" onclick="gv('dashboard')" style="color:var(--gold);font-weight:600">🏠 Accueil</button>
+    <button class="nb" onclick="gv('search')" style="color:var(--em);font-weight:600">🔍 Recherche</button>
+    <button class="nb" onclick="gv('shortlist')">⭐ Shortlist <span class="nbadge" id="shortBadge">0</span></button>
+    <div class="nav-sep"></div>
+    <button class="nb"  onclick="gv('sim')">Simulateur</button>
+    <button class="nb" onclick="openModal('expressModal')" style="color:var(--am);font-weight:600">⚡ Express</button>
+    <button class="nb"         onclick="gv('portf')">Portefeuille <span class="nbadge" id="portfBadge">0</span></button>
+    <button class="nb"         onclick="gv('pipeline')">🗂 Pipeline <span class="nbadge" id="pipeBadge">0</span></button>
+    <button class="nb"         onclick="gv('comp');buildComparateur()">🔀 Comparer</button>
+    <button class="nb"         onclick="gv('analyse')">Analyse</button>
+    <button class="nb"         onclick="gv('fiscal')">⚖ Régimes</button>
+    <button class="nb"         onclick="gv('tools')">Outils</button>
+    <button class="nb"         onclick="gv('capacity')">💰 Capacité</button>
+    <button class="nb"         onclick="gv('deficit')">📉 Déficit</button>
+    <button class="nb"         onclick="gv('denormandie')">🏛 Denormandie</button>
+    <button class="nb"         onclick="gv('ira')">⚡ Remb. anticipé</button>
+    <button class="nb"         onclick="gv('hist')">Historique <span class="nbadge" id="histBadge">0</span></button>
+    <button class="nb"         onclick="gv('ia')">✦ IA</button>
+    <button class="nb"         onclick="gv('doc')" style="color:var(--gold);font-weight:600">📖 Guide</button>
+    <button class="nb" onclick="openOnboard()" title="Tutoriel" style="font-size:.8rem">?</button>
+  </div>
+  <div class="top-right">
+    <button class="notif-bell" onclick="toggleNotifPanel()" title="Notifications">🔔<span class="notif-dot" id="notifDot"></span></button>
+    <div class="notif-panel" id="notifPanel">
+      <div class="notif-header"><h4>🔔 Notifications</h4><button class="btn btn-g btn-sm" onclick="clearNotifs()">Tout lire</button></div>
+      <div class="notif-list" id="notifList"><div class="notif-empty">Aucune notification</div></div>
+    </div>
+    <button class="theme-sw" onclick="toggleTheme()" title="Thème"></button>
+    <button class="btn btn-g btn-sm" onclick="openIdentityModal()" title="Page de garde PDF">🏢 Dossier</button>
+    <button class="btn btn-g btn-sm" onclick="openModal('cloudModal')" title="Sauvegarde cloud">☁ Cloud</button>
+    <button class="btn btn-g btn-sm" onclick="exportJSON()" title="Exporter JSON">↓ JSON</button>
+    <label class="btn btn-g btn-sm" title="Importer JSON" style="cursor:pointer">
+      ↑ Import <input type="file" id="importFile" accept=".json" onchange="importJSON(event)" style="display:none"/>
+    </label>
+    <button class="btn btn-g btn-sm no-print" onclick="window.print()">🖨 Imprimer</button>
+    <button class="btn btn-g btn-sm" onclick="copyShareURL()">🔗 Partager</button>
+    <button class="hbg" onclick="openDrawer()" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- Mobile drawer -->
+<div class="doverlay" id="doverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  <div class="drawer-nav">
+    <button class="db active" onclick="gvM('dashboard')" style="color:var(--gold)">🏠 Accueil</button>
+    <button class="db" onclick="gvM('search')" style="color:var(--em)">🔍 Recherche annonces</button>
+    <button class="db" onclick="gvM('shortlist')">⭐ Shortlist</button>
+    <hr style="border-color:var(--bd);margin:8px 0"/>
+    <button class="db" onclick="gvM('sim')">🏠 Simulateur</button>
+    <button class="db" onclick="gvM('portf')">🗂 Portefeuille</button>
+    <button class="db" onclick="gvM('analyse')">📊 Analyse</button>
+    <button class="db" onclick="gvM('fiscal')">⚖ Régimes fiscaux</button>
+    <button class="db" onclick="gvM('tools')">🔧 Outils</button>
+    <button class="db" onclick="gvM('hist')">🕐 Historique</button>
+    <button class="db" onclick="gvM('ia')">✦ Extraction IA</button>
+    <button class="db" onclick="gvM('doc')" style="color:var(--gold)">📖 Guide & Documentation</button>
+    <hr style="border-color:var(--bd);margin:8px 0"/>
+    <button class="db" onclick="exportJSON();closeDrawer()">↓ Exporter JSON</button>
+    <label class="db" style="cursor:pointer">↑ Importer JSON <input type="file" id="importFile2" accept=".json" onchange="importJSON(event)" style="display:none"/></label>
+    <button class="db" onclick="copyShareURL();closeDrawer()">🔗 Partager URL</button>
+    <button class="db" onclick="window.print();closeDrawer()">🖨 Imprimer</button>
+    <button class="db" onclick="exportCSV();closeDrawer()">↓ CSV</button>
+    <button class="db" onclick="exportPDF();closeDrawer()">↓ Dossier PDF</button>
+  </div>
+</div>
+
+<!-- ════════════════ VUE DASHBOARD ACCUEIL ════════════════ -->
+<div id="view-dashboard" class="view active">
+<div class="page">
+  <div class="dash-hero">
+    <div class="dash-hero-content">
+      <h1>Bienvenue sur ImmoSim <span style="color:var(--gold)">V9</span></h1>
+      <p>Votre copilote d'investissement immobilier — recherche, analyse, simulation et négociation assistées par IA</p>
+      <div class="dash-hero-actions">
+        <button class="btn btn-p btn-lg" onclick="gv('search')">🔍 Rechercher des annonces</button>
+        <button class="btn btn-g" onclick="gv('sim')">📊 Simuler un bien</button>
+        <button class="btn btn-g" onclick="gv('capacity')">💰 Ma capacité</button>
+      </div>
+    </div>
+    <div class="dash-hero-stats" id="dashHeroStats"></div>
+  </div>
+
+  <div class="dash-grid">
+    <!-- Latest listings -->
+    <div class="dash-card dash-card-wide">
+      <div class="dash-card-header">
+        <h3>🏘 Dernières annonces chargées</h3>
+        <button class="btn btn-g btn-sm" onclick="gv('search')">Voir tout →</button>
+      </div>
+      <div id="dashLatestListings"></div>
+    </div>
+
+    <!-- Shortlist preview -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <h3>⭐ Ma shortlist</h3>
+        <button class="btn btn-g btn-sm" onclick="gv('shortlist')">Voir tout →</button>
+      </div>
+      <div id="dashShortlist"></div>
+    </div>
+
+    <!-- Alert matches -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <h3>🎯 Mes alertes</h3>
+        <button class="btn btn-g btn-sm" onclick="openAlertProfile()">Configurer →</button>
+      </div>
+      <div id="dashAlerts"></div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="dash-card">
+      <div class="dash-card-header">
+        <h3>🕐 Activité récente</h3>
+      </div>
+      <div id="dashActivity"></div>
+    </div>
+
+    <!-- Quick tools -->
+    <div class="dash-card dash-card-wide">
+      <div class="dash-card-header">
+        <h3>🧰 Outils rapides</h3>
+      </div>
+      <div class="dash-tools-grid">
+        <a class="dash-tool" onclick="openTMICalc()">
+          <div class="dt-icon">📊</div>
+          <div class="dt-title">Calculateur TMI</div>
+          <div class="dt-desc">Votre tranche d'imposition selon votre revenu</div>
+        </a>
+        <a class="dash-tool" onclick="gv('capacity')">
+          <div class="dt-icon">💰</div>
+          <div class="dt-title">Capacité d'emprunt</div>
+          <div class="dt-desc">Votre budget max selon HCSF 35%</div>
+        </a>
+        <a class="dash-tool" onclick="gv('ira')">
+          <div class="dt-icon">⚡</div>
+          <div class="dt-title">Remb. anticipé</div>
+          <div class="dt-desc">Calcul IRA et économies d'intérêts</div>
+        </a>
+        <a class="dash-tool" onclick="gv('deficit')">
+          <div class="dt-icon">📉</div>
+          <div class="dt-title">Déficit foncier</div>
+          <div class="dt-desc">Report sur 10 ans et éco fiscale</div>
+        </a>
+        <a class="dash-tool" onclick="gv('denormandie')">
+          <div class="dt-icon">🏛</div>
+          <div class="dt-title">Denormandie</div>
+          <div class="dt-desc">Réduction d'impôt dans l'ancien avec travaux</div>
+        </a>
+        <a class="dash-tool" onclick="openScoreCust()">
+          <div class="dt-icon">⚙</div>
+          <div class="dt-title">Score custom</div>
+          <div class="dt-desc">Pondérer les critères investisseur</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ VUE RECHERCHE AGRÉGATEUR ════════════════ -->
+<div id="view-search" class="view">
+<div class="agg-layout">
+  <aside class="agg-filters">
+    <button class="filter-toggle" onclick="this.nextElementSibling.classList.toggle('collapsed');this.querySelector('.ft-arrow').textContent=this.nextElementSibling.classList.contains('collapsed')?'▼':'▲'">
+      🔍 Filtres de recherche <span class="ft-arrow">▲</span>
+    </button>
+    <div class="agg-filters-inner">
+    <h3>🔍 Filtres de recherche</h3>
+
+    <div class="agg-filter-group">
+      <div class="agg-filter-group-title">📍 Localisation</div>
+      <div class="field"><label>Ville / Code postal</label><input type="text" id="sVille" placeholder="Ex: Arras, 62000…" value="Arras"/></div>
+      <div class="field"><label>Rayon</label><select id="sRayon"><option value="0">Ville exacte</option><option value="10">10 km</option><option value="20" selected>20 km</option><option value="50">50 km</option><option value="100">100 km</option></select></div>
+    </div>
+
+    <div class="agg-filter-sep"></div>
+
+    <div class="agg-filter-group">
+      <div class="agg-filter-group-title">💰 Budget</div>
+      <div class="fg">
+        <div class="field"><label>Prix min</label><input type="number" id="sPrixMin" placeholder="50 000 €"/></div>
+        <div class="field"><label>Prix max</label><input type="number" id="sPrixMax" placeholder="300 000 €"/></div>
+      </div>
+    </div>
+
+    <div class="agg-filter-sep"></div>
+
+    <div class="agg-filter-group">
+      <div class="agg-filter-group-title">🏠 Caractéristiques</div>
+      <div class="fg">
+        <div class="field"><label>Surface min</label><input type="number" id="sSurfMin" placeholder="m²"/></div>
+        <div class="field"><label>Surface max</label><input type="number" id="sSurfMax" placeholder="m²"/></div>
+      </div>
+      <div class="field"><label>Type de bien</label>
+        <select id="sType"><option value="">Tous les types</option><option>Studio</option><option>Appartement</option><option>Maison</option><option>Immeuble</option><option>Local commercial</option><option>Parking</option></select>
+      </div>
+      <div class="field"><label>Pièces minimum</label><input type="number" id="sPieces" placeholder="1" min="1"/></div>
+    </div>
+
+    <div class="agg-filter-sep"></div>
+
+    <div class="agg-filter-group">
+      <div class="agg-filter-group-title">📊 Investissement</div>
+      <div class="fg">
+        <div class="field"><label>Rendement min (%)</label><input type="number" id="sRendMin" placeholder="6%" step="0.5"/></div>
+        <div class="field"><label>DPE maximum</label><select id="sDPE"><option value="">Tous</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select></div>
+      </div>
+      <div class="field"><label>Source</label>
+        <select id="sSource"><option value="">Toutes les sources</option><option value="leboncoin">Leboncoin</option><option value="seloger">SeLoger</option><option value="bienici">Bien'ici</option><option value="pap">PAP</option><option value="logicimmo">Logic-Immo</option><option value="manual">Import manuel</option></select>
+      </div>
+    </div>
+
+    <div class="agg-filter-sep"></div>
+
+    <div class="agg-filter-group">
+      <div class="agg-filter-group-title">🎯 Critères avancés</div>
+      <div class="agg-checks">
+        <label class="agg-check">
+          <input type="checkbox" id="sLocataire"/>
+          <span class="ck-box">✓</span>
+          <span class="ck-icon">🔑</span>
+          <span class="ck-text">Locataire en place<span class="ck-sub">Revenus immédiats</span></span>
+        </label>
+        <label class="agg-check">
+          <input type="checkbox" id="sTravaux"/>
+          <span class="ck-box">✓</span>
+          <span class="ck-icon">🔧</span>
+          <span class="ck-text">Avec travaux<span class="ck-sub">Potentiel de plus-value</span></span>
+        </label>
+        <label class="agg-check">
+          <input type="checkbox" id="sColoc"/>
+          <span class="ck-box">✓</span>
+          <span class="ck-icon">👥</span>
+          <span class="ck-text">Colocation possible<span class="ck-sub">Multi-locataires</span></span>
+        </label>
+        <label class="agg-check">
+          <input type="checkbox" id="sImmeuble"/>
+          <span class="ck-box">✓</span>
+          <span class="ck-icon">🏢</span>
+          <span class="ck-text">Immeuble de rapport<span class="ck-sub">Plusieurs lots</span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="agg-filter-sep"></div>
+
+    <div class="agg-filter-group">
+      <div class="agg-filter-group-title">🔑 Connexion API</div>
+      <div class="field">
+        <label>Fournisseur</label>
+        <select id="aggApiProvider" onchange="onProviderChange()">
+          <option value="anthropic">Anthropic (direct)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="custom">Proxy / Autre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Clé API</label>
+        <div style="position:relative">
+          <input type="password" id="aggApiKey" placeholder="sk-ant-api03-…" style="font-family:monospace;font-size:.72rem;padding-right:32px"/>
+          <button onclick="toggleAggKeyVis()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--ink3)">👁</button>
+        </div>
+      </div>
+      <div class="field" id="customEndpointWrap" style="display:none">
+        <label>URL endpoint</label>
+        <input type="text" id="aggApiEndpoint" placeholder="http://localhost:3456/api/messages" value="http://localhost:3456/api/messages" style="font-family:monospace;font-size:.7rem"/>
+      </div>
+      <div class="field" id="customModelWrap" style="display:none">
+        <label>Modèle</label>
+        <input type="text" id="aggApiModel" placeholder="claude-sonnet-4-20250514" style="font-family:monospace;font-size:.7rem"/>
+      </div>
+      <span class="hint" style="margin-top:4px;display:block">
+        <span id="apiKeyStatus" style="font-weight:600"></span>
+      </span>
+      <div style="margin-top:6px;display:flex;gap:4px">
+        <button class="btn btn-g btn-sm" onclick="saveAggApiKey()" style="flex:1">💾 Sauver</button>
+        <button class="btn btn-g btn-sm" onclick="testAggApiKey()" style="flex:1">🧪 Tester</button>
+      </div>
+      <div style="font-size:.58rem;color:var(--ink4);margin-top:6px;line-height:1.45" id="providerHelp">
+        ℹ <strong>Anthropic :</strong> clé sk-ant-api03-… depuis console.anthropic.com<br/>
+        <strong>Dans Claude.ai :</strong> fonctionne sans clé.
+      </div>
+    </div>
+
+    </div><!-- end agg-filters-inner -->
+
+    <div class="agg-filter-btns">
+      <button class="btn btn-p btn-full" onclick="filterListings()" style="margin-bottom:6px">🔍 Appliquer les filtres</button>
+      <button class="btn btn-g btn-full" onclick="resetFilters()">↺ Réinitialiser</button>
+    </div>
+  </aside>
+
+  <main class="agg-main">
+    <div class="agg-topbar">
+      <div>
+        <h2>Annonces immobilières</h2>
+        <p style="font-size:.76rem;color:var(--ink3);margin-top:3px">Vue centralisée multi-sources · Analyse investisseur automatique</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span class="agg-count" id="aggCount">0 annonce(s)</span>
+        <div class="view-toggle">
+          <button class="vt-btn active" onclick="setView('grid')" title="Grille">▦</button>
+          <button class="vt-btn" onclick="setView('list')" title="Liste">☰</button>
+          <button class="vt-btn map" onclick="setView('map')" title="Carte">🗺</button>
+        </div>
+        <div class="agg-sort">
+          <select id="aggSort" onchange="sortListings()">
+            <option value="score">Score ↓</option>
+            <option value="prix-asc">Prix ↑</option>
+            <option value="prix-desc">Prix ↓</option>
+            <option value="renta">Rentabilité ↓</option>
+            <option value="cashflow">Cash-flow ↓</option>
+            <option value="surface">Surface ↓</option>
+            <option value="prixm2">Prix/m² ↑</option>
+            <option value="date">Date ↓</option>
+          </select>
+        </div>
+        <div class="export-bar">
+          <button class="btn btn-g btn-sm" onclick="exportListingsCSV()" title="Exporter CSV">↓ CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="agg-action-bar">
+      <button class="btn btn-p btn-lg" onclick="searchRealListings()" id="btnSearch" style="min-width:230px">🔍 Rechercher des annonces <span class="kbd">⏎</span></button>
+      <button class="btn btn-g" onclick="loadDemoListings()">📦 Démo</button>
+      <button class="btn btn-g" onclick="toggleImportZone()">📋 Import</button>
+      <button class="btn btn-g" onclick="openScoreCust()">⚙ Score</button>
+      <button class="btn btn-g" onclick="openAlertProfile()">🎯 Alertes</button>
+      <button class="btn btn-g" onclick="clearAllListings()">🗑</button>
+    </div>
+
+    <!-- Quick filter chips -->
+    <div class="qf-bar" id="qfBar">
+      <span class="qf-chip" onclick="quickFilter('all')">Toutes</span>
+      <span class="qf-chip" onclick="quickFilter('good')">✓ Bonnes affaires</span>
+      <span class="qf-chip" onclick="quickFilter('cf+')">💰 Cash-flow +</span>
+      <span class="qf-chip" onclick="quickFilter('renta7')">📈 Renta ≥7%</span>
+      <span class="qf-chip" onclick="quickFilter('loue')">🔑 Déjà loué</span>
+      <span class="qf-chip" onclick="quickFilter('immeuble')">🏢 Immeubles</span>
+      <span class="qf-chip" onclick="quickFilter('petit')">💎 &lt;80k€</span>
+      <span class="qf-chip" onclick="quickFilter('notrav')">✨ Sans travaux</span>
+    </div>
+
+    <!-- Search history chips -->
+    <div class="search-hist" id="searchHistWrap" style="display:none">
+      <div class="search-hist-title"><span>🕐 Recherches récentes</span><button style="background:none;border:none;color:var(--ink4);font-size:.62rem;cursor:pointer" onclick="clearSearchHist()">Effacer</button></div>
+      <div id="searchHistChips"></div>
+    </div>
+
+    <!-- Source pills with live counts -->
+    <div class="agg-sources" id="aggSources">
+      <span class="agg-src-pill" style="background:#F56B2A22;color:#F56B2A;border:1px solid #F56B2A44">● Leboncoin <span class="qf-count" id="srcCount_leboncoin"></span></span>
+      <span class="agg-src-pill" style="background:#E0003422;color:#E00034;border:1px solid #E0003444">● SeLoger <span class="qf-count" id="srcCount_seloger"></span></span>
+      <span class="agg-src-pill" style="background:#6C5CE722;color:#6C5CE7;border:1px solid #6C5CE744">● Bien'ici <span class="qf-count" id="srcCount_bienici"></span></span>
+      <span class="agg-src-pill" style="background:#00B89422;color:#00B894;border:1px solid #00B89444">● PAP <span class="qf-count" id="srcCount_pap"></span></span>
+      <span class="agg-src-pill" style="background:var(--gold-a);color:var(--gold);border:1px solid var(--gold-b)">● Logic-Immo <span class="qf-count" id="srcCount_logicimmo"></span></span>
+    </div>
+
+    <!-- Stats bar (hidden when empty) -->
+    <div class="agg-stats" id="aggStats" style="display:none"></div>
+
+    <!-- Import zone (hidden by default) -->
+    <div class="import-zone" id="importZone" style="display:none">
+      <div style="font-size:.85rem;font-weight:700;color:var(--ink);margin-bottom:4px">📋 Importer une annonce manuellement</div>
+      <div style="font-size:.73rem;color:var(--ink3);margin-bottom:8px">Collez le texte d'une annonce ou une URL — l'IA analysera automatiquement le contenu</div>
+      <textarea id="importText" placeholder="Collez ici le texte complet d'une annonce immobilière, ou une URL (ex: leboncoin.fr/…)&#10;&#10;L'IA extraira : prix, surface, localisation, type, DPE, charges, et calculera la rentabilité estimée."></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
+        <button class="btn btn-p" onclick="importAndAnalyze()">✦ Analyser avec l'IA</button>
+        <button class="btn btn-g" onclick="toggleImportZone()">Fermer ✕</button>
+      </div>
+    </div>
+
+    <!-- Search progress -->
+    <div id="searchProgress" style="display:none;background:var(--bg1);border:1px solid var(--bd);border-radius:var(--r2);padding:22px;margin-bottom:16px;text-align:center">
+      <div class="ai-loading" style="padding:10px"><div class="spinner"></div></div>
+      <div id="searchProgressText" style="font-size:.8rem;color:var(--ink2);margin-top:6px">Recherche en cours sur les plateformes immobilières…</div>
+      <div style="height:5px;background:var(--bd2);border-radius:3px;margin-top:14px;overflow:hidden"><div id="searchBar" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--em));border-radius:3px;width:0%;transition:width 1s ease"></div></div>
+    </div>
+
+    <!-- Map container -->
+    <div class="agg-map-container hidden" id="aggMapContainer">
+      <div id="aggMap"></div>
+      <div class="map-toolbar">
+        <button onclick="fitMapToListings()" title="Centrer sur les annonces">⌖ Centrer</button>
+        <button onclick="setView('grid')" title="Retour grille">✕</button>
+      </div>
+    </div>
+
+    <!-- Results grid -->
+    <div class="agg-grid" id="aggGrid">
+      <div class="nodata" style="grid-column:1/-1">
+        <span class="ico">🏘</span>
+        <h3>Lancez une recherche</h3>
+        <p>Cliquez sur <strong>🔍 Rechercher</strong> ou <strong>📦 Démo</strong> pour commencer.</p>
+        <div style="margin-top:14px"><button class="btn btn-p" onclick="loadDemoListings()">📦 Charger 12 annonces démo</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Floating action button (mobile) -->
+<button class="fab" onclick="searchRealListings()" title="Rechercher">🔍</button>
+
+<!-- ══ CHAT IA FLOTTANT ══ -->
+<button class="chat-bubble" id="chatBubble" onclick="toggleChat()" title="Assistant IA">✦</button>
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <h4>✦ Assistant Investissement</h4>
+    <div class="ch-sub">Posez vos questions sur l'investissement ou une annonce</div>
+    <div id="chatContext"></div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg ai">Bonjour ! 👋 Je suis votre assistant investissement immobilier. Posez-moi n'importe quelle question : analyse d'un bien, stratégie fiscale, calcul de rentabilité, comparaison de villes, conseils de négociation…</div>
+  </div>
+  <div class="chat-suggestions" id="chatSuggestions">
+    <span class="chat-sug" onclick="askChat('Quelle différence entre LMNP réel et micro-BIC ?')">LMNP vs micro-BIC ?</span>
+    <span class="chat-sug" onclick="askChat('Comment calculer une bonne rentabilité ?')">Bonne rentabilité ?</span>
+    <span class="chat-sug" onclick="askChat('Les pièges à éviter pour un premier investissement locatif ?')">Pièges à éviter ?</span>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="Votre question…" onkeydown="if(event.key==='Enter')askChat()"/>
+    <button onclick="askChat()" id="chatSendBtn">➤</button>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ VUE SHORTLIST ════════════════ -->
+<div id="view-shortlist" class="view">
+<div class="page">
+  <div class="ph">
+    <div class="ph-row">
+      <div><h2>⭐ Shortlist & Comparateur</h2><p>Comparez vos annonces favorites côte à côte</p></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-p" onclick="generateCompareReport()">📄 Rapport comparatif</button>
+        <button class="btn btn-b" onclick="exportShortlistPDF()">↓ PDF Pro</button>
+        <button class="btn btn-em" onclick="shareShortlist()">🔗 Partager</button>
+        <button class="btn btn-g" onclick="clearShortlist()">Vider</button>
+      </div>
+    </div>
+  </div>
+  <div id="shortlistContent">
+    <div class="nodata">
+      <span class="ico">⭐</span>
+      <h3>Shortlist vide</h3>
+      <p>Ajoutez des annonces depuis la vue Recherche en cliquant sur ⭐</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ MODALE DÉTAIL ANNONCE ════════════════ -->
+<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-box">
+    <div class="detail-header">
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+      <div id="detailHeaderContent"></div>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- ════════════════ VUE SIMULATEUR ════════════════ -->
+<div id="view-sim" class="view">
+<div style="position:relative"><div class="form-progress" id="formProgress"><div class="form-progress-bar" id="formProgressBar" style="width:0%"></div></div></div>
+<div class="split">
+<div class="split-form">
+
+  <!-- § 0 PROJET & PIPELINE -->
+  <div class="sec project-section">
+    <div class="sh"><span class="sn" style="background:var(--pu-a);border-color:rgba(167,139,248,.25);color:var(--pu)">📋</span><span class="st">Suivi de projet</span>
+      <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-p btn-sm" onclick="saveToPipeline()" title="Sauvegarder ce projet dans le pipeline">💾 Sauver dans pipeline</button>
+        <button class="btn btn-g btn-sm" onclick="newProject()" title="Archiver le dossier actuel et en créer un nouveau">+ Nouveau</button>
+        <button class="btn btn-g btn-sm" onclick="gv('pipeline')">🗂 Pipeline →</button>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="field s2"><label>Nom de ce projet (pour le suivi)</label>
+        <input type="text" id="projectName" placeholder="Ex: Immeuble rue de Paris — Arras" oninput="updateProjectName()"/>
+        <span class="hint">Donnez un nom pour retrouver votre simulation dans le pipeline</span>
+      </div>
+    </div>
+    <div class="pipeline-stage-picker" id="pipelineStagePicker">
+      <div style="font-size:.68rem;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Étape actuelle du dossier</div>
+      <div class="stage-btns">
+        <button class="stage-btn" data-stage="watch" onclick="setProjectStage('watch')">
+          <span class="sb-icon">👀</span>
+          <span class="sb-label">À étudier</span>
+          <span class="sb-desc">Analyse en cours</span>
+        </button>
+        <button class="stage-btn" data-stage="contact" onclick="setProjectStage('contact')">
+          <span class="sb-icon">📞</span>
+          <span class="sb-label">À contacter</span>
+          <span class="sb-desc">Intéressant, prendre contact</span>
+        </button>
+        <button class="stage-btn" data-stage="visit" onclick="setProjectStage('visit')">
+          <span class="sb-icon">🚪</span>
+          <span class="sb-label">À visiter</span>
+          <span class="sb-desc">Visite planifiée ou à caler</span>
+        </button>
+        <button class="stage-btn" data-stage="offer" onclick="setProjectStage('offer')">
+          <span class="sb-icon">📝</span>
+          <span class="sb-label">Offre faite</span>
+          <span class="sb-desc">Proposition envoyée</span>
+        </button>
+        <button class="stage-btn" data-stage="accept" onclick="setProjectStage('accept')">
+          <span class="sb-icon">✅</span>
+          <span class="sb-label">Acceptée</span>
+          <span class="sb-desc">Offre acceptée, en cours</span>
+        </button>
+        <button class="stage-btn" data-stage="sold" onclick="setProjectStage('sold')">
+          <span class="sb-icon">🏆</span>
+          <span class="sb-label">Vendu</span>
+          <span class="sb-desc">Acte signé, bien acquis</span>
+        </button>
+        <button class="stage-btn" data-stage="reject" onclick="setProjectStage('reject')">
+          <span class="sb-icon">❌</span>
+          <span class="sb-label">Abandonnée</span>
+          <span class="sb-desc">Refusée ou écartée</span>
+        </button>
+      </div>
+      <div class="project-next-step" id="projectNextStep" style="display:none"></div>
+      <div class="fg" style="margin-top:12px">
+        <div class="field s2"><label>Notes privées sur ce projet</label>
+          <textarea id="projectNotes" placeholder="Agent contacté le... prochaine étape... points à vérifier..." onchange="saveProjectNotes()" style="min-height:60px"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § 1 BIEN + NÉGOCIATION -->
+  <div class="sec">
+    <div class="sh"><span class="sn">1</span><span class="st">Bien immobilier</span></div>
+    <div class="fg">
+      <div class="field"><label>Prix affiché (€)</label><input type="number" id="prixAffiche" placeholder="150 000" min="0" oninput="updateNego()"/></div>
+      <div class="field"><label>Négociation (%)</label><input type="number" id="negoP" placeholder="0" min="0" max="50" step="0.5" oninput="updateNego()"/><span class="hint">% de réduction souhaitée</span></div>
+      <div class="field"><label>Prix négocié (€)</label><input type="number" id="prixAchat" placeholder="150 000" min="0" oninput="lv()"/></div>
+      <div class="field"><label>Frais de notaire (€)</label><input type="number" id="fraisNotaire" placeholder="Auto" min="0"/><span class="hint">Laissez vide : calculé auto (8,5% ancien / 3% neuf)</span></div>
+      <div class="field"><label>Type de bien</label>
+        <select id="typeBien"><option value="">— Choisir —</option><option>Studio</option><option>T2</option><option>T3</option><option>T4+</option><option>Maison</option><option>Immeuble</option><option>Local commercial</option><option>Parking</option></select>
+      </div>
+      <div class="field"><label>Ancienneté</label>
+        <select id="anciennete" onchange="autoNotaire()"><option value="ancien">Ancien (&gt;5 ans)</option><option value="neuf">Neuf / VEFA</option></select>
+      </div>
+      <div class="field"><label>Surface (m²)</label><input type="number" id="surface" placeholder="45" min="0"/></div>
+      <div class="field s2"><label>Ville ou code postal</label>
+        <div class="city-search-wrap">
+          <input type="text" id="ville" placeholder="Tapez un nom de ville ou code postal…" autocomplete="off" oninput="citySearch(this.value)" onkeydown="cityKeydown(event)"/>
+          <span class="city-search-icon" id="citySearchIcon">🔍</span>
+          <div class="city-dd" id="cityDropdown"></div>
+        </div>
+        <input type="hidden" id="codePostal"/>
+        <input type="hidden" id="codeCommune"/>
+        <div class="city-card" id="cityCard"></div>
+      </div>
+      <div class="field"><label>DPE</label>
+        <select id="dpe"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+      </div>
+      <div class="field"><label>Type de location</label>
+        <select id="typeLoc"><option value="nue">Nue (longue durée)</option><option value="meublee">Meublée LMNP</option><option value="courte">Courte durée</option></select>
+      </div>
+      <div class="field s2"><label>Description / notes</label><textarea id="description" placeholder="Emplacement, état, atouts, risques…"></textarea></div>
+      <div class="field s2">
+        <label>Photos du bien (incluses dans le PDF)</label>
+        <div class="photo-drop" id="photoDrop" onclick="document.getElementById('photoInput').click()"
+             ondragover="event.preventDefault();this.classList.add('over')"
+             ondragleave="this.classList.remove('over')"
+             ondrop="handlePhotoDrop(event)">
+          <span class="photo-drop-label">📷 Cliquez ou glissez vos photos ici</span>
+          <span class="photo-drop-sub">JPG, PNG, WEBP — max 5 photos — incluses automatiquement dans le PDF</span>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotoInput(this.files)"/>
+        <div class="photo-grid" id="photoGrid"></div>
+        <div class="photo-count" id="photoCount"></div>
+      </div>
+    </div>
+    <div class="computed-row" id="negoRow" style="display:none">
+      <span class="lbl">💰 Économie négociée</span><span class="val" id="negoVal">—</span>
+    </div>
+    <div class="computed-row" style="margin-top:6px">
+      <span class="lbl">Frais de notaire estimés</span><span class="val" id="notaireDisplay">—</span>
+    </div>
+  </div>
+
+  <!-- § 2 ACQUISITION -->
+  <div class="sec">
+    <div class="sh"><span class="sn">2</span><span class="st">Coût d'acquisition</span></div>
+    <div class="fg">
+      <div class="field"><label>Frais d'agence (€)</label><input type="number" id="fraisAgence" placeholder="5 000" min="0"/></div>
+      <div class="field"><label>Travaux (€)</label><input type="number" id="travaux" placeholder="15 000" min="0"/></div>
+      <div class="field"><label>Ameublement (€)</label><input type="number" id="ameublement" placeholder="3 000" min="0"/></div>
+      <div class="field"><label>Autres frais (€)</label><input type="number" id="autresFrais" placeholder="500" min="0"/></div>
+      <div class="field"><label>Coût total projet (€)</label><input type="number" id="coutTotal" class="comp" readonly/></div>
+    </div>
+  </div>
+
+  <!-- § 3 FINANCEMENT + MULTI-LOTS -->
+  <div class="sec">
+    <div class="sh"><span class="sn">3</span><span class="st">Financement</span></div>
+    <div class="itabs" id="finTabs">
+      <button class="it active" data-ft="credit" onclick="switchFin('credit')">Crédit classique</button>
+      <button class="it" data-ft="multilot" onclick="switchFin('multilot')">Multi-lots</button>
+    </div>
+
+    <div id="ft-credit" class="tp active">
+      <div class="fg">
+        <div class="field">
+          <label>Apport (€)</label>
+          <input type="number" id="apport" placeholder="20 000" min="0" oninput="onApportInput()"/>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.72rem;color:var(--ink2);font-weight:500;text-transform:none;letter-spacing:0">
+              <input type="checkbox" id="apportNotaire" onchange="setApportPreset('notaire')" style="width:14px;height:14px;accent-color:var(--gold);cursor:pointer;flex-shrink:0"/>
+              Frais de notaire (~8,5%)
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.72rem;color:var(--ink2);font-weight:500;text-transform:none;letter-spacing:0">
+              <input type="checkbox" id="apport10" onchange="setApportPreset('10')" style="width:14px;height:14px;accent-color:var(--gold);cursor:pointer;flex-shrink:0"/>
+              10% du prix d'achat
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.72rem;color:var(--ink2);font-weight:500;text-transform:none;letter-spacing:0">
+              <input type="checkbox" id="apport20" onchange="setApportPreset('20')" style="width:14px;height:14px;accent-color:var(--gold);cursor:pointer;flex-shrink:0"/>
+              20% du prix d'achat
+            </label>
+          </div>
+        </div>
+        <div class="field"><label>Montant emprunté (€)</label><input type="number" id="emprunte" placeholder="Calculé si vide" min="0"/><span class="hint">Vide = coût total − apport</span></div>
+        <div class="field"><label>Taux prêt (%)</label><input type="number" id="tauxPret" placeholder="3.50" min="0" step="0.01"/></div>
+        <div class="field"><label>Durée (années)</label><input type="number" id="dureePret" placeholder="20" min="1" max="30"/></div>
+        <div class="field"><label>Assurance empr. (€)</label><input type="number" id="assurEmpr" placeholder="30" min="0" step="0.01"/></div>
+        <div class="field"><label>Période assurance</label>
+          <select id="periodeAss"><option value="m">Mensuelle</option><option value="a">Annuelle</option></select>
+        </div>
+        <div class="field"><label>Mensualité calculée (€)</label><input type="number" id="mensCalculee" class="comp" readonly/></div>
+        <div class="field"><label>Mensualité manuelle (€)</label><input type="number" id="mensManuelle" placeholder="Optionnel" min="0"/></div>
+      </div>
+    </div>
+
+    <div id="ft-multilot" class="tp">
+      <p style="font-size:.76rem;color:var(--ink3);margin-bottom:12px">Ajoutez plusieurs lots (appartements, parkings…) d'un même immeuble ou projet groupé. Le simulateur additionne les loyers et charges.</p>
+      <div class="lot-list" id="lotList"></div>
+      <button class="add-lot-btn" onclick="openAddLot()">+ Ajouter un lot</button>
+      <div class="computed-row" style="margin-top:10px"><span class="lbl">Total loyers tous lots</span><span class="val" id="totalLots">0 €/mois</span></div>
+    </div>
+  </div>
+
+  <!-- § 3b REVENUS DU MÉNAGE (taux d'endettement) -->
+  <div class="sec">
+    <div class="sh"><span class="sn" style="background:var(--sa-a);border-color:var(--sa-b);color:var(--sa)">€</span><span class="st">Revenus du ménage</span></div>
+    <p style="font-size:.73rem;color:var(--ink3);margin-bottom:10px">Pour calculer votre taux d'endettement bancaire (seuil HCSF : 35%).</p>
+    <div class="fg">
+      <div class="field"><label>Revenus nets mensuels (€)</label><input type="number" id="revenusMenage" placeholder="3 500" min="0" oninput="lv()"/><span class="hint">Salaires nets du foyer fiscal</span></div>
+      <div class="field"><label>Autres crédits en cours (€/mois)</label><input type="number" id="autresCredits" placeholder="0" min="0" oninput="lv()"/><span class="hint">Auto, conso, immobilier existant…</span></div>
+    </div>
+    <div id="debtRatioDisplay" style="margin-top:10px;display:none">
+      <div class="computed-row" style="flex-direction:column;align-items:stretch;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="lbl">📊 Taux d'endettement</span>
+          <span id="debtRatioValue" class="debt-badge">—</span>
+        </div>
+        <div class="debt-gauge"><div class="debt-gauge-fill" id="debtGaugeFill" style="width:0%"></div></div>
+        <div id="debtRatioMsg" class="val-msg" style="margin-top:2px"></div>
+      </div>
+    </div>
+
+    <!-- Capacité d'emprunt -->
+    <div style="margin-top:14px">
+      <button class="btn btn-em btn-full" onclick="calcCapacity()">💰 Calculer ma capacité d'emprunt & reste à vivre</button>
+    </div>
+    <div id="simCapacityResult" style="margin-top:10px"></div>
+  </div>
+
+  <!-- § 3c TAUX D'ENDETTEMENT — DUAL MÉTHODE -->
+  <div class="sec">
+    <div class="sh"><span class="sn" style="background:var(--ga);border-color:var(--gb);color:var(--gold)">📊</span><span class="st">Taux d'endettement bancaire — comparatif HCSF vs Différentiel</span></div>
+    <p style="font-size:.73rem;color:var(--ink3);margin-bottom:10px">Calcul des 2 méthodes utilisées par les banques. La mensualité et le loyer sont récupérés automatiquement depuis le simulateur.</p>
+
+    <!-- Décote selector -->
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;margin-bottom:12px">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:8px">Pourcentage du loyer retenu par la banque</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="simEnd_decoteWrap">
+        <label class="decote-card" data-val="70">
+          <input type="radio" name="simEnd_decote" value="70" checked onchange="calcSimEndettement()"/>
+          <div class="dc-pct">70%</div>
+          <div class="dc-desc">Banque prudente<br/>décote 30%</div>
+        </label>
+        <label class="decote-card" data-val="80">
+          <input type="radio" name="simEnd_decote" value="80" onchange="calcSimEndettement()"/>
+          <div class="dc-pct">80%</div>
+          <div class="dc-desc">Banque souple<br/>décote 20%</div>
+        </label>
+        <label class="decote-card" data-val="90">
+          <input type="radio" name="simEnd_decote" value="90" onchange="calcSimEndettement()"/>
+          <div class="dc-pct">90%</div>
+          <div class="dc-desc">Banque favorable<br/>décote 10%</div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Optional additional revenue inputs -->
+    <details style="margin-bottom:12px">
+      <summary style="font-size:.72rem;color:var(--ink3);cursor:pointer;font-weight:600">+ Revenus complémentaires (optionnel)</summary>
+      <div class="fg" style="margin-top:10px">
+        <div class="field"><label>Primes / variable (€/an)</label><input type="number" id="simEnd_primes" placeholder="0" min="0" oninput="calcSimEndettement()"/><span class="hint">Divisé par 12, retenu à 70%</span></div>
+        <div class="field"><label>Autres revenus stables (€/mois)</label><input type="number" id="simEnd_autres" placeholder="0" min="0" oninput="calcSimEndettement()"/><span class="hint">Rentes, allocations… retenu à 70%</span></div>
+      </div>
+    </details>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="calcSimEndettement()">📊 Calculer le taux d'endettement</button>
+      <button class="btn btn-g btn-sm" onclick="resetSimEndettement()">↺ Réinitialiser</button>
+    </div>
+
+    <div id="simEndettementResult"></div>
+  </div>
+
+  <!-- § 4 EXPLOITATION -->
+  <div class="sec">
+    <div class="sh"><span class="sn">4</span><span class="st">Exploitation locative</span></div>
+    <div class="itabs">
+      <button class="it active" data-loc="ld" onclick="switchLoc('ld')">Longue durée</button>
+      <button class="it" data-loc="cd" onclick="switchLoc('cd')">Courte durée</button>
+    </div>
+    <div id="loc-ld" class="tp active">
+      <div class="fg">
+        <div class="field"><label>Loyer mensuel HC (€)</label><input type="number" id="loyerMensuel" placeholder="700" min="0"/></div>
+        <div class="field"><label>Revalorisation loyer (%/an)</label><input type="number" id="irlTaux" placeholder="1.5" min="0" max="10" step="0.1"/><span class="hint">IRL ≈ 1,5–3% · personnalisable</span></div>
+        <div class="field"><label>Vacance locative (%)</label><input type="number" id="vacance" placeholder="5" min="0" max="100" step="0.5"/></div>
+        <div class="field"><label>Taux d'impayés (%)</label><input type="number" id="impayes" placeholder="1" min="0" step="0.5"/></div>
+      </div>
+    </div>
+    <div id="loc-cd" class="tp">
+      <div class="fg">
+        <div class="field"><label>Prix nuitée (€)</label><input type="number" id="prixNuit" placeholder="80" min="0"/></div>
+        <div class="field"><label>Taux d'occupation (%)</label><input type="number" id="occup" placeholder="65" min="0" max="100" step="1"/></div>
+        <div class="field"><label>Commission plateforme (%)</label><input type="number" id="commPlat" placeholder="15" min="0" step="0.5"/></div>
+        <div class="field"><label>Frais ménage/séjour (€)</label><input type="number" id="fraisMenage" placeholder="30" min="0"/></div>
+        <div class="field"><label>Séjours estimés/mois</label><input type="number" id="nbSejours" placeholder="8" min="0"/></div>
+        <div class="field"><label>Conciergerie (€/mois)</label><input type="number" id="concierge" placeholder="0" min="0"/></div>
+        <div class="field"><label>Revenu mensuel net estimé</label><input type="number" id="revCourte" class="comp-em" readonly/></div>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px">
+      <div class="field"><label>Taxe foncière (€/an)</label><input type="number" id="taxeFonc" placeholder="800" min="0"/></div>
+      <div class="field"><label>Assurance PNO (€/an)</label><input type="number" id="assurPNO" placeholder="150" min="0"/></div>
+      <div class="field"><label>Charges copro non récup. (€/an)</label><input type="number" id="chargesCopro" placeholder="600" min="0"/></div>
+      <div class="field"><label>Frais de gestion (€/an)</label><input type="number" id="fraisGestion" placeholder="700" min="0"/></div>
+      <div class="field"><label>Entretien (€/an)</label><input type="number" id="entretien" placeholder="500" min="0"/></div>
+      <div class="field"><label>Comptabilité (€/an)</label><input type="number" id="compta" placeholder="400" min="0"/></div>
+      <div class="field"><label>Autres charges (€/an)</label><input type="number" id="autresCharges" placeholder="200" min="0"/></div>
+    </div>
+  </div>
+
+  <!-- § 5 FISCALITÉ -->
+  <div class="sec">
+    <div class="sh"><span class="sn">5</span><span class="st">Fiscalité</span></div>
+    <div class="rtabs" id="regimeTabs">
+      <button class="rt active" data-r="micro-foncier">Micro-foncier</button>
+      <button class="rt" data-r="reel-foncier">Réel foncier</button>
+      <button class="rt" data-r="micro-bic">Micro-BIC</button>
+      <button class="rt" data-r="lmnp-reel">LMNP Réel</button>
+      <button class="rt" data-r="sci-ir">SCI IR</button>
+      <button class="rt" data-r="sci-is">SCI IS</button>
+    </div>
+    <input type="hidden" id="regime" value="micro-foncier"/>
+    <div class="fg">
+      <div class="field"><label>TMI (%) <button onclick="openTMICalc()" style="background:none;border:none;color:var(--gold);font-size:.6rem;font-weight:700;cursor:pointer;text-transform:none;letter-spacing:0">📊 Calculer mon TMI</button></label>
+        <select id="tmi"><option value="0">0%</option><option value="11">11%</option><option value="30" selected>30%</option><option value="41">41%</option><option value="45">45%</option></select>
+        <span id="tmiAutoHint" class="hint" style="display:none;color:var(--gold)"></span>
+      </div>
+      <div class="field"><label>Prélèvements sociaux (%)</label><input type="number" id="ps" value="17.2" step="0.1" min="0"/></div>
+      <div class="field" id="f-int" style="display:none"><label>Intérêts d'emprunt (€/an)</label><input type="number" id="interets" placeholder="Auto" min="0"/><span class="hint">Auto = capital × taux (année 1)</span></div>
+      <div class="field" id="f-asd" style="display:none"><label>Assurance empr. déductible (€/an)</label><input type="number" id="assurDed" placeholder="360" min="0"/></div>
+      <div class="field" id="f-ded" style="display:none"><label>Autres déductibles (€/an)</label><input type="number" id="autresDed" placeholder="0" min="0"/></div>
+      <div class="field" id="f-is" style="display:none"><label>Taux IS</label>
+        <select id="tauxIS"><option value="auto" selected>Auto (15% / 25%)</option><option value="15">15% PME</option><option value="25">25% standard</option></select>
+      </div>
+      <div class="field" id="f-sal" style="display:none"><label>Salaire dirigeant (€/an)</label><input type="number" id="salaireDirigeant" placeholder="0" min="0"/><span class="hint">Déductible du résultat IS. Imposé à l'IR comme salaire.</span></div>
+      <div class="field" id="f-div" style="display:none"><label>% résultat distribué en dividendes</label><input type="number" id="pctDividende" placeholder="0" min="0" max="100" value="0"/><span class="hint">PFU 30% appliqué sur la part distribuée</span></div>
+    </div>
+    <!-- Amortissements -->
+    <div id="bloc-amort" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
+      <div class="st" style="font-size:.88rem;margin-bottom:11px">📐 Amortissements</div>
+      <div class="preset-grid" id="presetGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px"></div>
+      <div class="computed-row" style="margin-bottom:11px"><span class="lbl">Total amortissements</span><span class="val" id="amortTotal">0 €/an</span></div>
+      <div class="fg">
+        <div class="field"><label>Immeuble (€/an)</label><input type="number" id="amortImm" placeholder="0" min="0" oninput="updAmort()"/><span class="hint">2,5% du prix hors terrain</span></div>
+        <div class="field"><label>Mobilier (€/an)</label><input type="number" id="amortMob" placeholder="0" min="0" oninput="updAmort()"/></div>
+        <div class="field"><label>Travaux (€/an)</label><input type="number" id="amortTrav" placeholder="0" min="0" oninput="updAmort()"/></div>
+        <div class="field"><label>Autres (€/an)</label><input type="number" id="amortAut" placeholder="0" min="0" oninput="updAmort()"/></div>
+        <div class="field"><label>Total (€/an)</label><input type="number" id="amortissements" class="comp" readonly/></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- § 6 HYPOTHÈSES LONG TERME -->
+  <div class="sec">
+    <div class="sh"><span class="sn">6</span><span class="st">Hypothèses long terme</span></div>
+    <div class="fg">
+      <div class="field"><label>Revalorisation bien (%/an)</label><input type="number" id="revalBien" placeholder="2.0" min="0" max="15" step="0.1"/><span class="hint">Appréciation annuelle du capital</span></div>
+      <div class="field"><label>Inflation charges (%/an)</label><input type="number" id="inflCharges" placeholder="1.5" min="0" max="10" step="0.1"/></div>
+      <div class="field"><label>Horizon projection (ans)</label><input type="number" id="horizon" placeholder="20" min="5" max="30"/></div>
+      <div class="field"><label>Prix de revente estimé (€)</label><input type="number" id="prixRevente" placeholder="Auto" min="0"/><span class="hint">Laissez vide = calculé selon revalorisation</span></div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="abar">
+    <button class="btn btn-p btn-full btn-lg" onclick="calc()">Calculer la rentabilité</button>
+    <div class="arow">
+      <button class="btn btn-g btn-sm" id="btnUndo" onclick="undoForm()" title="Annuler (Ctrl+Z)" style="opacity:.35">↩ Annuler</button>
+      <button class="btn btn-g btn-sm" id="btnRedo" onclick="redoForm()" title="Rétablir (Ctrl+Y)" style="opacity:.35">↪ Rétablir</button>
+    </div>
+    <div class="arow">
+      <button class="btn btn-g" onclick="demo()">↺ Démo</button>
+      <button class="btn btn-g" onclick="addToPortf()">📁 Portefeuille</button>
+      <button class="btn btn-g" onclick="copyShareURL()">🔗 Partager</button>
+    </div>
+    <div class="arow">
+      <button class="btn btn-g" onclick="exportCSV()">↓ CSV</button>
+      <button class="btn btn-g" onclick="exportGSheets()" title="Ouvrir dans Google Sheets">↗ Sheets</button>
+      <button class="btn btn-g" id="btnSpeak" onclick="speakResults()" title="Résumé vocal">🔊 Écouter</button>
+      <button class="btn btn-g" onclick="exportPDF()">↓ PDF</button>
+      <button class="btn btn-g" onclick="exportJSON()">↓ JSON</button>
+    </div>
+  </div>
+
+</div><!-- /split-form -->
+
+<!-- PANEL RÉSULTATS -->
+<div class="split-panel">
+  <div class="panel-tabs">
+    <button class="pt active" onclick="switchPanel('pr-main')">Résultats</button>
+    <button class="pt" onclick="switchPanel('pr-levier')">Effet levier</button>
+    <button class="pt" onclick="switchPanel('pr-cf')">Cash-flow</button>
+    <button class="pt" onclick="switchPanel('pr-scenarios')">Scénarios</button>
+    <button class="pt" onclick="switchPanel('pr-amort')">Amort.</button>
+  </div>
+  <div id="pr-main" class="ptab active"><div id="panelMain"><div class="pe"><span class="ico">◈</span>Calculez un bien<br/>pour voir les résultats</div></div></div>
+  <div id="pr-levier" class="ptab"><div id="panelLevier"><div class="pe"><span class="ico">◈</span>Calculez un bien<br/>pour voir l'effet levier</div></div></div>
+  <div id="pr-cf" class="ptab"><div id="panelCF"><div class="pe"><span class="ico">◈</span>Calculez un bien<br/>pour voir le cash-flow</div></div></div>
+  <div id="pr-scenarios" class="ptab"><div id="panelScenarios"><div class="pe"><span class="ico">◈</span>Calculez un bien<br/>pour voir les scénarios</div></div></div>
+  <div id="pr-amort" class="ptab"><div id="panelAmort"><div class="pe"><span class="ico">◈</span>Calculez un bien<br/>pour voir le tableau d'amortissement</div></div></div>
+</div>
+</div><!-- /split -->
+</div><!-- /view-sim -->
+
+<!-- ════════════════ VUE PORTEFEUILLE ════════════════ -->
+<div id="view-portf" class="view">
+<div class="page">
+  <div class="ph-row ph">
+    <div><h2>Mon portefeuille</h2><p>Vue agrégée de tous vos projets sauvegardés.</p></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap">
+      <button class="btn btn-g btn-sm" onclick="exportJSON()">↓ Export JSON</button>
+      <button class="btn btn-g btn-sm" onclick="exportPDF()">↓ PDF</button>
+    </div>
+  </div>
+  <div class="portf-totals" id="portfTotals">
+    <div class="pt-kpi"><span class="tl">Biens</span><span class="tv" id="ptBiens">0</span></div>
+    <div class="pt-kpi"><span class="tl">Valeur totale</span><span class="tv gold" id="ptValeur">—</span></div>
+    <div class="pt-kpi"><span class="tl">CF mensuel total</span><span class="tv" id="ptCF">—</span></div>
+    <div class="pt-kpi"><span class="tl">CF annuel total</span><span class="tv" id="ptCFan">—</span></div>
+    <div class="pt-kpi"><span class="tl">Rent. brute moy.</span><span class="tv gold" id="ptRent">—</span></div>
+  </div>
+  <div class="portf-header" id="portfGrid">
+    <div class="portf-empty"><span class="ico">◈</span>Aucun projet.<br/>Calculez un bien et cliquez sur <strong>📁 Portefeuille</strong>.</div>
+  </div>
+  <div id="portfCharts" style="display:none;margin-top:20px">
+    <div class="grid2">
+      <div class="card"><h3>📊 Répartition du patrimoine</h3><div class="chart-box"><canvas id="chartPortfPie"></canvas></div></div>
+      <div class="card"><h3>💹 Cash-flow cumulé portefeuille</h3><div class="chart-box"><canvas id="chartPortfCF"></canvas></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- ════════════════ VUE COMPARATEUR ════════════════ -->
+<div id="view-comp" class="view">
+<div class="page">
+  <div class="ph-row ph">
+    <div><h2>🔀 Comparateur de biens</h2><p>Comparez côte à côte tous vos projets sauvegardés. Le meilleur CF est mis en évidence.</p></div>
+    <button class="btn btn-g btn-sm" onclick="exportCompPDF()">↓ PDF comparatif</button>
+  </div>
+  <div id="compContent">
+    <div class="comp-empty">Sauvegardez au moins 2 biens dans votre portefeuille pour les comparer ici.</div>
+  </div>
+</div>
+</div>
+
+
+<!-- ════════════════ VUE DÉFICIT FONCIER ════════════════ -->
+<div id="view-deficit" class="view">
+<div class="page page-sm">
+  <div class="ph"><h2>📉 Déficit foncier pluriannuel</h2><p>Report du déficit sur 10 ans. Calcul de l'économie fiscale cumulée.</p></div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Paramètres</h3>
+    <div class="fg">
+      <div class="field"><label>Loyer annuel (€)</label><input type="number" id="df_loyer" placeholder="8 400" oninput="calcDeficit()"/></div>
+      <div class="field"><label>Charges déductibles (€/an)</label><input type="number" id="df_charges" placeholder="3 200" oninput="calcDeficit()"/></div>
+      <div class="field"><label>Intérêts emprunt (€/an)</label><input type="number" id="df_interets" placeholder="4 500" oninput="calcDeficit()"/></div>
+      <div class="field"><label>Travaux déductibles (€/an)</label><input type="number" id="df_travaux" placeholder="0" oninput="calcDeficit()"/></div>
+      <div class="field"><label>TMI (%)</label>
+        <select id="df_tmi" onchange="calcDeficit()">
+          <option value="11">11%</option><option value="30" selected>30%</option>
+          <option value="41">41%</option><option value="45">45%</option>
+        </select>
+      </div>
+      <div class="field"><label>Déficit antérieur reporté (€)</label><input type="number" id="df_report" placeholder="0" oninput="calcDeficit()"/></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-p" onclick="calcDeficit()">📊 Calculer le déficit foncier</button>
+      <button class="btn btn-b" onclick="prefillDeficit()">📥 Pré-remplir depuis le simulateur</button>
+    </div>
+  </div>
+  <div id="deficitResult">
+    <div class="nodata"><span class="ico">📉</span><h3>Remplissez les paramètres</h3><p>Le tableau de report du déficit sur 10 ans s'affichera ici.</p></div>
+  </div>
+</div>
+</div>
+
+
+<!-- ════════════════ VUE DENORMANDIE ════════════════ -->
+<div id="view-denormandie" class="view">
+<div class="page page-sm">
+  <div class="ph"><h2>🏛 Simulation Denormandie</h2><p>Calcul de la réduction d'impôt pour investissement locatif avec travaux dans l'ancien.</p></div>
+  <div style="background:var(--sa-a);border:1px solid var(--sa-b);border-radius:var(--r);padding:10px 14px;font-size:.77rem;color:var(--ink2);margin-bottom:14px;line-height:1.55">
+    <strong style="color:var(--sa)">Conditions Denormandie :</strong> Logement ancien dans une ville éligible (Action Cœur de Ville…). Travaux ≥ 25% du coût total. Location nue 6, 9 ou 12 ans. Loyers et ressources plafonnés.
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Paramètres</h3>
+    <div class="fg">
+      <div class="field"><label>Prix du bien (€)</label><input type="number" id="dn_prix" placeholder="150 000" oninput="calcDenormandie()"/></div>
+      <div class="field"><label>Montant des travaux (€)</label><input type="number" id="dn_travaux" placeholder="50 000" oninput="calcDenormandie()"/></div>
+      <div class="field"><label>Durée d'engagement (ans)</label>
+        <select id="dn_duree" onchange="calcDenormandie()">
+          <option value="6">6 ans — 12%</option>
+          <option value="9" selected>9 ans — 18%</option>
+          <option value="12">12 ans — 21%</option>
+        </select>
+      </div>
+      <div class="field"><label>TMI (%)</label>
+        <select id="dn_tmi" onchange="calcDenormandie()">
+          <option value="11">11%</option><option value="30" selected>30%</option>
+          <option value="41">41%</option><option value="45">45%</option>
+        </select>
+      </div>
+      <div class="field"><label>Loyer mensuel (€)</label><input type="number" id="dn_loyer" placeholder="700" oninput="calcDenormandie()"/></div>
+      <div class="field"><label>Charges annuelles (€)</label><input type="number" id="dn_charges" placeholder="2 500" oninput="calcDenormandie()"/></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-p" onclick="calcDenormandie()">📊 Simuler Denormandie</button>
+      <button class="btn btn-b" onclick="prefillDenormandie()">📥 Pré-remplir depuis le simulateur</button>
+    </div>
+  </div>
+  <div id="denormandieResult">
+    <div class="nodata"><span class="ico">🏛</span><h3>Remplissez les paramètres</h3><p>La simulation de réduction d'impôt Denormandie s'affichera ici.</p></div>
+  </div>
+</div>
+</div>
+
+
+<!-- ════════════════ VUE REMBOURSEMENT ANTICIPÉ ════════════════ -->
+<div id="view-ira" class="view">
+<div class="page page-sm">
+  <div class="ph"><h2>⚡ Remboursement anticipé</h2><p>Calcul des IRA, économies d'intérêts et point mort de l'opération.</p></div>
+  <div style="background:var(--sa-a);border:1px solid var(--sa-b);border-radius:var(--r);padding:10px 14px;font-size:.77rem;color:var(--ink2);margin-bottom:14px;line-height:1.55">
+    <strong style="color:var(--sa)">IRA (Indemnités de Remboursement Anticipé) :</strong> plafonnées légalement au minimum entre 3% du capital restant dû et 6 mois d'intérêts au taux du prêt.
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>Paramètres</h3>
+    <div class="fg">
+      <div class="field"><label>Capital emprunté (€)</label><input type="number" id="ira_capital" placeholder="200 000" oninput="calcIRA()"/></div>
+      <div class="field"><label>Taux d'intérêt (%)</label><input type="number" id="ira_taux" placeholder="3.65" step="0.01" oninput="calcIRA()"/></div>
+      <div class="field"><label>Durée initiale (ans)</label><input type="number" id="ira_duree" placeholder="20" min="1" max="30" oninput="calcIRA()"/></div>
+      <div class="field"><label>Remboursement à l'année</label><input type="number" id="ira_an" placeholder="5" min="1" oninput="calcIRA()"/></div>
+      <div class="field s2"><label>Montant remboursé par anticipation (€)</label><input type="number" id="ira_montant" placeholder="50 000" oninput="calcIRA()"/><span class="hint">Laisser vide pour un remboursement total</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-p" onclick="calcIRA()">📊 Calculer les IRA</button>
+      <button class="btn btn-b" onclick="prefillIRA()">📥 Pré-remplir depuis le simulateur</button>
+    </div>
+  </div>
+  <div id="iraResult">
+    <div class="nodata"><span class="ico">⚡</span><h3>Remplissez les paramètres</h3><p>Le calcul d'indemnités et d'économie d'intérêts s'affichera ici.</p></div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════ VUE CAPACITÉ D'EMPRUNT ════════════════ -->
+<div id="view-capacity" class="view">
+<div class="page page-sm">
+  <div class="ph"><h2>💰 Capacité d'emprunt & Taux d'endettement</h2><p>Calculez votre budget immobilier et comparez votre taux d'endettement selon les deux méthodes bancaires en vigueur.</p></div>
+
+  <div style="background:var(--sa-a);border:1px solid var(--sa-b);border-radius:var(--r);padding:10px 14px;font-size:.77rem;color:var(--ink2);margin-bottom:14px;line-height:1.55">
+    <strong style="color:var(--sa)">💡 Règle HCSF :</strong> Les banques françaises limitent le taux d'endettement à <strong>35%</strong> des revenus nets (assurance incluse). Depuis le 1er janvier 2022, la méthode différentielle est <strong>interdite</strong> pour les particuliers (sauf dérogation &lt; 4% des dossiers). Limite absolue recommendée : <strong>39% maximum</strong>.
+  </div>
+
+  <!-- ONGLETS -->
+  <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap" id="capTabBtns">
+    <button class="btn btn-p btn-sm" onclick="showCapTab('endettement')" id="capTab_endettement">📊 Taux d'endettement</button>
+    <button class="btn btn-g btn-sm" onclick="showCapTab('capacite')" id="capTab_capacite">💰 Capacité d'emprunt</button>
+  </div>
+
+  <!-- ══ ONGLET TAUX D'ENDETTEMENT ══ -->
+  <div id="capSection_endettement">
+
+  <div class="card" style="margin-bottom:14px">
+    <h3>👤 Revenus du foyer (mensuel net)</h3>
+    <div class="fg">
+      <div class="field"><label>Salaire net — emprunteur 1 (€/mois)</label><input type="number" id="end_sal1" placeholder="2 500" min="0" oninput="calcEndettement()"/><span class="hint">Votre salaire net après impôt à la source</span></div>
+      <div class="field"><label>Salaire net — emprunteur 2 (€/mois)</label><input type="number" id="end_sal2" placeholder="0" min="0" oninput="calcEndettement()"/><span class="hint">Co-emprunteur / conjoint (0 si seul)</span></div>
+      <div class="field"><label>Primes / revenus variables (€/an)</label><input type="number" id="end_primes" placeholder="0" min="0" oninput="calcEndettement()"/><span class="hint">Divisé par 12, retenu à 70% par les banques</span></div>
+      <div class="field"><label>Autres revenus stables (€/mois)</label><input type="number" id="end_autres" placeholder="0" min="0" oninput="calcEndettement()"/><span class="hint">Rentes, allocations, loyers déjà perçus hors projet (70%)</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <h3>💳 Crédits & Charges en cours (mensuel)</h3>
+    <div class="fg">
+      <div class="field"><label>Crédit immo — résidence principale (€/mois)</label><input type="number" id="end_credImmo" placeholder="0" min="0" oninput="calcEndettement()"/></div>
+      <div class="field"><label>Crédit auto (€/mois)</label><input type="number" id="end_credAuto" placeholder="0" min="0" oninput="calcEndettement()"/></div>
+      <div class="field"><label>Crédits conso / autres (€/mois)</label><input type="number" id="end_credConso" placeholder="0" min="0" oninput="calcEndettement()"/></div>
+      <div class="field"><label>Pension alimentaire versée (€/mois)</label><input type="number" id="end_pension" placeholder="0" min="0" oninput="calcEndettement()"/></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <h3>🏠 Nouveau projet locatif</h3>
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:9px 12px;font-size:.75rem;color:var(--ink3);margin-bottom:12px;line-height:1.5">
+      Renseignez la mensualité du crédit que vous allez contracter et le loyer brut mensuel que vous percevrez. Ces données servent au calcul des 2 méthodes.
+    </div>
+    <div class="fg">
+      <div class="field"><label>Mensualité du nouveau crédit (€/mois)</label><input type="number" id="end_newMens" placeholder="700" min="0" oninput="calcEndettement()"/><span class="hint">Inclure assurance emprunteur</span></div>
+      <div class="field"><label>Loyer brut mensuel perçu (€/mois)</label><input type="number" id="end_loyer" placeholder="600" min="0" oninput="calcEndettement()"/><span class="hint">Voir ci-dessous le % retenu par la banque</span></div>
+    </div>
+
+    <!-- Décote selector -->
+    <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;margin-top:12px">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:8px">Pourcentage du loyer retenu par la banque</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <label class="decote-card" data-val="70">
+          <input type="radio" name="end_decote" value="70" checked onchange="calcEndettement()"/>
+          <div class="dc-pct">70%</div>
+          <div class="dc-desc">Banque prudente<br/>décote 30%</div>
+        </label>
+        <label class="decote-card" data-val="80">
+          <input type="radio" name="end_decote" value="80" onchange="calcEndettement()"/>
+          <div class="dc-pct">80%</div>
+          <div class="dc-desc">Banque souple<br/>décote 20%</div>
+        </label>
+        <label class="decote-card" data-val="90">
+          <input type="radio" name="end_decote" value="90" onchange="calcEndettement()"/>
+          <div class="dc-pct">90%</div>
+          <div class="dc-desc">Banque favorable<br/>décote 10%</div>
+        </label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="calcEndettement()">📊 Calculer le taux d'endettement</button>
+      <button class="btn btn-b" onclick="prefillEndettementFromSim()">📥 Pré-remplir depuis le simulateur</button>
+      <button class="btn btn-g btn-sm" onclick="resetEndettement()">↺ Réinitialiser</button>
+    </div>
+  </div>
+
+  <div id="endettementResult">
+    <div class="nodata"><span class="ico">📊</span><h3>Renseignez votre situation</h3><p>Le taux d'endettement selon les deux méthodes s'affichera ici.</p></div>
+  </div>
+
+  </div><!-- /capSection_endettement -->
+
+  <!-- ══ ONGLET CAPACITÉ D'EMPRUNT ══ -->
+  <div id="capSection_capacite" style="display:none">
+
+  <div class="card" style="margin-bottom:14px">
+    <h3>Revenus du foyer</h3>
+    <div class="fg">
+      <div class="field"><label>Salaire net principal (€/mois)</label><input type="number" id="cap_salaire1" placeholder="2 500" oninput="calcCapacity()"/><span class="hint">Votre salaire net mensuel</span></div>
+      <div class="field"><label>Salaire net conjoint (€/mois)</label><input type="number" id="cap_salaire2" placeholder="0" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Autres revenus stables (€/mois)</label><input type="number" id="cap_autres" placeholder="0" oninput="calcCapacity()"/><span class="hint">Loyers perçus, rentes, allocations stables (pris à 70%)</span></div>
+      <div class="field"><label>Primes / variable (€/an)</label><input type="number" id="cap_primes" placeholder="0" oninput="calcCapacity()"/><span class="hint">Divisé par 12, pris à 70%</span></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <h3>Charges & Crédits en cours</h3>
+    <div class="fg">
+      <div class="field"><label>Crédit auto (€/mois)</label><input type="number" id="cap_credAuto" placeholder="0" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Crédit immo résidence (€/mois)</label><input type="number" id="cap_credImmo" placeholder="0" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Crédits conso (€/mois)</label><input type="number" id="cap_credConso" placeholder="0" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Pension alimentaire versée (€/mois)</label><input type="number" id="cap_pension" placeholder="0" oninput="calcCapacity()"/></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <h3>Paramètres du projet</h3>
+    <div class="fg">
+      <div class="field"><label>Taux de crédit (%)</label><input type="number" id="cap_taux" placeholder="3.50" step="0.01" value="3.50" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Durée souhaitée (ans)</label><input type="number" id="cap_duree" placeholder="20" min="5" max="27" value="20" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Apport disponible (€)</label><input type="number" id="cap_apport" placeholder="30 000" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Assurance empr. (% du capital)</label><input type="number" id="cap_ass" placeholder="0.36" step="0.01" value="0.36" oninput="calcCapacity()"/></div>
+      <div class="field"><label>Nombre de personnes au foyer</label><input type="number" id="cap_personnes" placeholder="2" min="1" value="2" oninput="calcCapacity()"/><span class="hint">Pour calcul reste à vivre minimum</span></div>
+      <div class="field"><label>Revenus locatifs futurs (€/mois)</label><input type="number" id="cap_loyerFutur" placeholder="0" oninput="calcCapacity()"/><span class="hint">Du bien que vous achetez (pris à 70%)</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-p" onclick="calcCapacity()">📊 Calculer ma capacité</button>
+      <button class="btn btn-b" onclick="applyCapacityToFilters()">🔍 Filtrer les annonces à mon budget</button>
+    </div>
+  </div>
+
+  <div id="capacityResult">
+    <div class="nodata"><span class="ico">💰</span><h3>Renseignez votre situation</h3><p>Votre capacité d'emprunt maximale et votre reste à vivre s'afficheront ici.</p></div>
+  </div>
+
+  </div><!-- /capSection_capacite -->
+
+</div>
+</div>
+
+<script>
+// ── ONGLETS CAPACITÉ ──
+function showCapTab(tab) {
+  ['endettement','capacite'].forEach(function(t) {
+    var s = document.getElementById('capSection_'+t);
+    var b = document.getElementById('capTab_'+t);
+    if (s) s.style.display = t===tab ? '' : 'none';
+    if (b) {
+      b.className = t===tab ? 'btn btn-p btn-sm' : 'btn btn-g btn-sm';
+    }
+  });
+}
+
+// ── HELPER : récupère le % de décote sélectionné ──
+function getDecote(name) {
+  var radios = document.getElementsByName(name);
+  for (var i=0; i<radios.length; i++) {
+    if (radios[i].checked) return parseFloat(radios[i].value) / 100;
+  }
+  return 0.70; // défaut
+}
+
+// ── RENDU COMMUN : génère le HTML résultat pour les 2 méthodes ──
+function renderEndettementResult(data) {
+  var sal1=data.sal1, sal2=data.sal2, primes=data.primes, autres=data.autres;
+  var chargesExist=data.chargesExist, pension=data.pension||0;
+  var newMens=data.newMens, loyer=data.loyer, decote=data.decote;
+
+  var revBase    = sal1 + sal2;
+  var revPrimes  = (primes / 12) * 0.70;
+  var revAutres  = autres * 0.70;
+  var revTotal   = revBase + revPrimes + revAutres;
+
+  var loyerNet = loyer * decote;
+  var decotePct = Math.round(decote*100);
+  var decoteLabel = (100 - decotePct) + '%';
+
+  var revHCSF      = revTotal + loyerNet;
+  var chargesHCSF  = chargesExist + newMens;
+  var tauxHCSF     = revHCSF > 0 ? (chargesHCSF / revHCSF) * 100 : 0;
+
+  var differentiel = Math.max(0, newMens - loyerNet);
+  var chargesDiff  = chargesExist + differentiel;
+  var tauxDiff     = revTotal > 0 ? (chargesDiff / revTotal) * 100 : 0;
+
+  if (revTotal <= 0) {
+    return '<div class="nodata"><span class="ico">⚠️</span><h3>Revenus manquants</h3><p>Veuillez renseigner au moins un salaire.</p></div>';
+  }
+
+  function colorClass(t) {
+    if (t <= 33)  return {bg:'#16a34a22',border:'#16a34a44',color:'#16a34a',label:'✅ Excellent'};
+    if (t <= 35)  return {bg:'#22c55e22',border:'#22c55e44',color:'#22c55e',label:'✅ Conforme HCSF'};
+    if (t <= 39)  return {bg:'var(--am-a)',border:'var(--am-b)',color:'var(--am)',label:'⚠️ Limite haute'};
+    return {bg:'#ef444422',border:'#ef444444',color:'#ef4444',label:'❌ Hors normes'};
+  }
+
+  var cH = colorClass(tauxHCSF);
+  var cD = colorClass(tauxDiff);
+
+  function fmt(n) { return n.toLocaleString('fr-FR', {maximumFractionDigits:0}) + ' €'; }
+  function pct(n) { return n.toFixed(1) + ' %'; }
+  function bar(t) {
+    var w = Math.min(t, 50);
+    var col = t<=33?'#16a34a':t<=35?'#22c55e':t<=39?'var(--am)':'#ef4444';
+    var m35 = (35/50)*100; var m39 = (39/50)*100;
+    return '<div style="position:relative;height:14px;background:var(--bg2);border-radius:8px;margin:8px 0 4px;overflow:visible">'
+      +'<div style="height:100%;width:'+((w/50)*100)+'%;background:'+col+';border-radius:8px;transition:width .4s"></div>'
+      +'<div style="position:absolute;top:-4px;bottom:-4px;left:'+m35+'%;width:2px;background:#fff;opacity:.5"></div>'
+      +'<div style="position:absolute;top:-4px;bottom:-4px;left:'+m39+'%;width:2px;background:#ef4444;opacity:.7"></div>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--ink4)"><span>0%</span><span style="color:#fff;opacity:.5">35%</span><span style="color:#ef4444;opacity:.7">39%</span><span>50%</span></div>';
+  }
+
+  var html = '';
+
+  // Bandeau décote
+  html += '<div style="background:var(--ga);border:1px solid var(--gb);border-radius:var(--r2);padding:10px 14px;margin-bottom:14px;font-size:.74rem;color:var(--ink2);display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+  html += '<span style="font-size:1.1rem">🏦</span>';
+  html += '<span><strong style="color:var(--gold)">Décote bancaire appliquée : '+decoteLabel+'</strong> → loyer retenu à <strong>'+decotePct+'%</strong> = '+fmt(loyerNet)+'/mois</span>';
+  html += '</div>';
+
+  // KPIs synthèse
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">';
+  html += '<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;text-align:center">';
+  html += '<div style="font-size:.62rem;color:var(--ink4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Revenus retenus</div>';
+  html += '<div style="font-size:1.15rem;font-weight:700;color:var(--ink)">'+fmt(revTotal)+'</div>';
+  html += '<div style="font-size:.62rem;color:var(--ink3)">par mois</div></div>';
+  html += '<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;text-align:center">';
+  html += '<div style="font-size:.62rem;color:var(--ink4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Charges actuelles</div>';
+  html += '<div style="font-size:1.15rem;font-weight:700;color:var(--ink)">'+fmt(chargesExist)+'</div>';
+  html += '<div style="font-size:.62rem;color:var(--ink3)">hors nouveau projet</div></div>';
+  html += '<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:12px;text-align:center">';
+  html += '<div style="font-size:.62rem;color:var(--ink4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Loyer net retenu</div>';
+  html += '<div style="font-size:1.15rem;font-weight:700;color:var(--gold)">'+fmt(loyerNet)+'</div>';
+  html += '<div style="font-size:.62rem;color:var(--ink3)">'+fmt(loyer)+' × '+decotePct+'%</div></div>';
+  html += '</div>';
+
+  // Comparaison 2 méthodes
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">';
+
+  html += '<div style="background:'+cH.bg+';border:1px solid '+cH.border+';border-radius:var(--r2);padding:16px">';
+  html += '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+cH.color+';margin-bottom:8px">Méthode HCSF<br/><span style="font-size:.58rem;opacity:.8">Obligatoire depuis jan. 2022</span></div>';
+  html += '<div style="font-size:2.2rem;font-weight:800;color:'+cH.color+';line-height:1">'+pct(tauxHCSF)+'</div>';
+  html += '<div style="font-size:.7rem;font-weight:600;color:'+cH.color+';margin-top:2px">'+cH.label+'</div>';
+  html += bar(tauxHCSF);
+  html += '<div style="margin-top:10px;font-size:.7rem;color:var(--ink3);line-height:1.6">';
+  html += '<div>Charges : <strong style="color:var(--ink)">'+fmt(chargesHCSF)+'/mois</strong></div>';
+  html += '<div>Revenus : <strong style="color:var(--ink)">'+fmt(revHCSF)+'/mois</strong> (loyer ajouté)</div>';
+  html += '<div style="margin-top:6px;font-size:.65rem;color:var(--ink4);font-style:italic">(charges + nouvelle mens.) / (revenus + loyer net)</div>';
+  html += '</div></div>';
+
+  html += '<div style="background:'+cD.bg+';border:1px solid '+cD.border+';border-radius:var(--r2);padding:16px">';
+  html += '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:'+cD.color+';margin-bottom:8px">Méthode différentielle<br/><span style="font-size:.58rem;opacity:.8">Dérogatoire — &lt;4% des dossiers</span></div>';
+  html += '<div style="font-size:2.2rem;font-weight:800;color:'+cD.color+';line-height:1">'+pct(tauxDiff)+'</div>';
+  html += '<div style="font-size:.7rem;font-weight:600;color:'+cD.color+';margin-top:2px">'+cD.label+'</div>';
+  html += bar(tauxDiff);
+  html += '<div style="margin-top:10px;font-size:.7rem;color:var(--ink3);line-height:1.6">';
+  html += '<div>Différentiel : <strong style="color:var(--ink)">'+fmt(differentiel)+'/mois</strong></div>';
+  html += '<div>Loyer net − mensualité : <strong style="color:var(--ink)">'+fmt(loyerNet)+' − '+fmt(newMens)+'</strong></div>';
+  html += '<div style="margin-top:6px;font-size:.65rem;color:var(--ink4);font-style:italic">(charges + max(0, mens. − loyer net)) / revenus</div>';
+  html += '</div></div>';
+
+  html += '</div>';
+
+  // Verdict final
+  var ok = tauxHCSF <= 35;
+  var aok = tauxHCSF <= 39;
+  html += '<div style="background:'+(ok?'#16a34a22':aok?'var(--am-a)':'#ef444422')+';border:1px solid '+(ok?'#16a34a44':aok?'var(--am-b)':'#ef444444')+';border-radius:var(--r2);padding:14px">';
+  html += '<div style="font-size:.75rem;font-weight:700;color:'+(ok?'#16a34a':aok?'var(--am)':'#ef4444')+'">'+
+    (ok ? '✅ Dossier conforme HCSF (≤ 35%)' : aok ? '⚠️ Dossier limite — entre 35% et 39% (dérogation bancaire nécessaire)' : '❌ Taux hors normes — au-delà de 39%, les banques refuseront généralement')+
+  '</div>';
+  html += '<div style="font-size:.72rem;color:var(--ink3);margin-top:6px;line-height:1.55">';
+  if (ok) {
+    html += 'Votre taux d\'endettement HCSF est conforme. La méthode différentielle donne <strong>'+pct(tauxDiff)+'</strong> — favorable aux investisseurs expérimentés en cas de dérogation bancaire.';
+  } else if (aok) {
+    html += 'Votre taux dépasse 35% (règle HCSF). Une dérogation bancaire est nécessaire (accordée dans &lt;4% des dossiers, profils solides uniquement). La méthode différentielle donne <strong>'+pct(tauxDiff)+'</strong>.';
+  } else {
+    html += 'Le taux d\'endettement dépasse 39%. La plupart des établissements bancaires refuseront ce financement. Augmentez votre apport, réduisez le capital emprunté ou augmentez vos revenus.';
+  }
+  html += '</div>';
+
+  var ecart = Math.abs(tauxHCSF - tauxDiff).toFixed(1);
+  html += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1);font-size:.7rem;color:var(--ink3)">';
+  html += '📌 Écart entre les deux méthodes : <strong style="color:var(--gold)">'+ecart+'%</strong>. ';
+  html += tauxDiff < tauxHCSF
+    ? 'La méthode différentielle vous est favorable de '+ecart+'%.'
+    : 'Les deux méthodes donnent un résultat similaire — le loyer ne suffit pas à compenser la mensualité.';
+  html += '</div>';
+  html += '</div>';
+
+  return html;
+}
+
+// ── CALCUL TAUX D'ENDETTEMENT — Vue Capacité ──
+function calcEndettement() {
+  var data = {
+    sal1:    parseFloat(document.getElementById('end_sal1').value)    || 0,
+    sal2:    parseFloat(document.getElementById('end_sal2').value)    || 0,
+    primes:  parseFloat(document.getElementById('end_primes').value)  || 0,
+    autres:  parseFloat(document.getElementById('end_autres').value)  || 0,
+    pension: parseFloat(document.getElementById('end_pension').value) || 0,
+    newMens: parseFloat(document.getElementById('end_newMens').value) || 0,
+    loyer:   parseFloat(document.getElementById('end_loyer').value)   || 0,
+    decote:  getDecote('end_decote')
+  };
+  var cImmo  = parseFloat(document.getElementById('end_credImmo').value)  || 0;
+  var cAuto  = parseFloat(document.getElementById('end_credAuto').value)  || 0;
+  var cConso = parseFloat(document.getElementById('end_credConso').value) || 0;
+  data.chargesExist = cImmo + cAuto + cConso + data.pension;
+
+  document.getElementById('endettementResult').innerHTML = renderEndettementResult(data);
+}
+
+function resetEndettement() {
+  ['end_sal1','end_sal2','end_primes','end_autres','end_credImmo','end_credAuto','end_credConso','end_pension','end_newMens','end_loyer'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  var radios = document.getElementsByName('end_decote');
+  for (var i=0; i<radios.length; i++) radios[i].checked = (radios[i].value === '70');
+  document.getElementById('endettementResult').innerHTML = '<div class="nodata"><span class="ico">📊</span><h3>Renseignez votre situation</h3><p>Le taux d\'endettement selon les deux méthodes s\'affichera ici.</p></div>';
+}
+
+function prefillEndettementFromSim() {
+  try {
+    var mensC = parseFloat((document.getElementById('mensCalculee')||{}).value) || 0;
+    var mensM = parseFloat((document.getElementById('mensManuelle')||{}).value) || 0;
+    var mens  = mensM > 0 ? mensM : mensC;
+    var loyer = parseFloat((document.getElementById('loyerMensuel')||{}).value) || 0;
+    var sal   = parseFloat((document.getElementById('revenusMenage')||{}).value) || 0;
+    var creds = parseFloat((document.getElementById('autresCredits')||{}).value) || 0;
+    if (mens > 0  && document.getElementById('end_newMens'))  document.getElementById('end_newMens').value  = mens.toFixed(0);
+    if (loyer > 0 && document.getElementById('end_loyer'))    document.getElementById('end_loyer').value    = loyer.toFixed(0);
+    if (sal > 0   && document.getElementById('end_sal1') && !document.getElementById('end_sal1').value) document.getElementById('end_sal1').value = sal.toFixed(0);
+    if (creds > 0 && document.getElementById('end_credConso') && !document.getElementById('end_credConso').value) document.getElementById('end_credConso').value = creds.toFixed(0);
+    calcEndettement();
+  } catch(e) {}
+}
+
+// ── CALCUL TAUX D'ENDETTEMENT — Section dans le SIMULATEUR ──
+function calcSimEndettement() {
+  var sal     = parseFloat((document.getElementById('revenusMenage')||{}).value) || 0;
+  var creds   = parseFloat((document.getElementById('autresCredits')||{}).value) || 0;
+  var mensC   = parseFloat((document.getElementById('mensCalculee')||{}).value)  || 0;
+  var mensM   = parseFloat((document.getElementById('mensManuelle')||{}).value)  || 0;
+  var newMens = mensM > 0 ? mensM : mensC;
+  var loyer   = parseFloat((document.getElementById('loyerMensuel')||{}).value)  || 0;
+  var primes  = parseFloat((document.getElementById('simEnd_primes')||{}).value) || 0;
+  var autres  = parseFloat((document.getElementById('simEnd_autres')||{}).value) || 0;
+
+  var data = {
+    sal1: sal, sal2: 0,
+    primes: primes, autres: autres, pension: 0,
+    chargesExist: creds,
+    newMens: newMens, loyer: loyer,
+    decote: getDecote('simEnd_decote')
+  };
+
+  var html = '';
+  // Bandeau infos source
+  html += '<div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:9px 12px;margin-bottom:10px;font-size:.72rem;color:var(--ink3);display:flex;gap:14px;flex-wrap:wrap">';
+  html += '<span>📥 Mensualité : <strong style="color:var(--ink)">'+(newMens?newMens.toFixed(0)+' €':'—')+'</strong></span>';
+  html += '<span>📥 Loyer : <strong style="color:var(--ink)">'+(loyer?loyer.toFixed(0)+' €':'—')+'</strong></span>';
+  html += '<span>📥 Salaires : <strong style="color:var(--ink)">'+(sal?sal.toFixed(0)+' €':'—')+'</strong></span>';
+  html += '<span>📥 Crédits : <strong style="color:var(--ink)">'+(creds?creds.toFixed(0)+' €':'0 €')+'</strong></span>';
+  html += '</div>';
+
+  if (newMens <= 0 || loyer <= 0 || sal <= 0) {
+    html += '<div class="nodata" style="padding:18px"><span class="ico">⚠️</span><h3>Données incomplètes</h3><p style="font-size:.78rem">Renseignez d\'abord dans le simulateur :<br/>• La <strong>mensualité du crédit</strong> (section 3 Financement)<br/>• Le <strong>loyer mensuel HC</strong> (section 4 Exploitation)<br/>• Vos <strong>revenus nets mensuels</strong> (section Revenus du ménage)</p></div>';
+    document.getElementById('simEndettementResult').innerHTML = html;
+    return;
+  }
+
+  html += renderEndettementResult(data);
+  document.getElementById('simEndettementResult').innerHTML = html;
+}
+
+function resetSimEndettement() {
+  ['simEnd_primes','simEnd_autres'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  var radios = document.getElementsByName('simEnd_decote');
+  for (var i=0; i<radios.length; i++) radios[i].checked = (radios[i].value === '70');
+  document.getElementById('simEndettementResult').innerHTML = '';
+}
+</script>
+
+<!-- ════════════════ VUE ANALYSE ════════════════ -->
+<div id="view-analyse" class="view">
+<div class="page"><div id="analyseContent"><div class="nodata"><span class="ico">◈</span><h3>Aucune donnée</h3><p>Calculez d'abord un bien dans le simulateur.</p></div></div></div>
+</div>
+
+<!-- ════════════════ VUE PIPELINE KANBAN ════════════════ -->
+<div id="view-pipeline" class="view">
+<div class="page">
+  <div class="ph">
+    <div class="ph-row">
+      <div>
+        <h2>🗂 Mon Pipeline d'Investissement</h2>
+        <p>Suivez chaque projet immobilier de l'étude à l'acquisition — simulations + annonces agrégateur</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-p" onclick="gv('sim')">+ Nouveau dossier</button>
+        <button class="btn btn-g" onclick="exportPipelineCSV()">↓ Export CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats globales pipeline -->
+  <div class="pipe-stats" id="pipelineStats"></div>
+
+  <!-- Kanban columns -->
+  <div class="pipeline-board" id="pipelineBoard"></div>
+</div>
+</div>
+
+<!-- ════════════════ VUE FISCAL ════════════════ -->
+<div id="view-fiscal" class="view">
+<div class="page"><div class="ph"><h2>Comparaison des régimes fiscaux</h2><p>Tous les régimes calculés pour votre bien. Régime optimal mis en évidence.</p></div><div id="fiscalContent"><div class="nodata"><span class="ico">◈</span><h3>Aucune donnée</h3><p>Calculez d'abord un bien.</p></div></div></div>
+</div>
+
+<!-- ════════════════ VUE OUTILS ════════════════ -->
+<div id="view-tools" class="view">
+<div class="page page-sm"><div class="ph"><h2>Outils & Aide à la décision</h2><p>Score de risque, loyer optimal, localisation, checklist.</p></div><div id="toolsContent"></div><div id="checklistWrap" style="margin-top:18px"></div></div>
+</div>
+
+<!-- ════════════════ VUE HISTORIQUE ════════════════ -->
+<div id="view-hist" class="view">
+<div class="page page-sm">
+  <div class="ph-row ph">
+    <div><h2>Historique des calculs</h2><p>Sauvegardé automatiquement à chaque calcul.</p></div>
+    <button class="btn btn-d btn-sm" onclick="clearHist()">Vider</button>
+  </div>
+  <div id="histList"></div>
+</div>
+</div>
+
+<!-- ════════════════ VUE IA ════════════════ -->
+<div id="view-ia" class="view">
+<div class="page page-sm">
+  <div class="ph"><h2>✦ Extraction IA</h2><p>Collez le texte d'une annonce. L'IA pré-remplit le simulateur.</p></div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>🔑 Clé API Claude</h3>
+    <p>Obtenez votre clé sur <strong>console.anthropic.com</strong> → API Keys. Stockée dans votre navigateur uniquement.</p>
+    <div style="display:flex;gap:7px;margin-bottom:8px">
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-…" style="flex:1;font-family:monospace;font-size:.79rem"/>
+      <button class="btn btn-p btn-sm" onclick="saveKey()">Enregistrer</button>
+      <button class="btn btn-g btn-sm" onclick="toggleKeyVis()">👁</button>
+    </div>
+    <div id="keyStatus" style="font-size:.71rem;padding:5px 9px;border-radius:var(--r);display:none"></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>🔗 Import URL d'annonce</h3>
+    <p style="font-size:.75rem;color:var(--ink2);margin-bottom:8px">Collez l'URL d'une annonce SeLoger, LeBonCoin, PAP, etc. L'IA récupère et analyse le contenu automatiquement.</p>
+    <div style="display:flex;gap:7px">
+      <input type="url" id="annonceURL" placeholder="https://www.seloger.com/annonces/..." style="flex:1;font-size:.82rem"/>
+      <button class="btn btn-b btn-sm" id="btnFetchURL" onclick="fetchAnnonceURL()">
+        <span id="fetchTxt">📥 Charger</span>
+        <span id="fetchSpin" style="display:none"><span style="display:inline-block;width:10px;height:10px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite"></span></span>
+      </button>
+    </div>
+    <div id="urlStatus" style="font-size:.72rem;color:var(--ink3);margin-top:5px;min-height:14px"></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <h3>📋 Texte de l'annonce</h3>
+    <textarea id="annonceTxt" style="min-height:170px;width:100%;resize:vertical;font-size:.83rem;line-height:1.6" placeholder="T2 meublé 42m², Lyon 3e. Loyer 680€/mois. DPE C. Prix 145 000€… (ou collez l'URL ci-dessus)"></textarea>
+    <div style="display:flex;gap:7px;margin-top:10px">
+      <button class="btn btn-p" id="btnExt" onclick="extraire()"><span id="extTxt">✦ Extraire</span><span id="extSpin" style="display:none"><span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite"></span></span></button>
+      <button class="btn btn-g" onclick="document.getElementById('annonceTxt').value=''">Effacer</button>
+    </div>
+  </div>
+  <div id="iaResult" style="display:none">
+    <div class="card">
+      <h3>✅ Données extraites</h3>
+      <div id="iaGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"></div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-p" onclick="importIA()">Importer dans le simulateur</button>
+        <button class="btn btn-g" onclick="document.getElementById('iaResult').style.display='none'">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!-- ════════════════ VUE DOCUMENTATION ════════════════ -->
+<div id="view-doc" class="view">
+<div class="page page-sm" style="max-width:860px">
+  <div class="ph">
+    <h2>📖 Guide utilisateur — ImmoSim V7</h2>
+    <p>Documentation complète, glossaire et FAQ. Cliquez sur une section pour la développer.</p>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div style="margin-bottom:20px;position:relative">
+    <input type="text" id="docSearch" placeholder="Rechercher dans la documentation…" oninput="searchDoc()" style="padding-left:36px;font-size:.85rem"/>
+    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink4);font-size:.9rem">🔍</span>
+  </div>
+  <div id="docSearchResults" style="display:none;margin-bottom:16px"></div>
+
+  <!-- Navigation rapide -->
+  <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px" id="docNav">
+    <button class="btn btn-g btn-sm" onclick="scrollDoc('doc-start')">🚀 Démarrage rapide</button>
+    <button class="btn btn-g btn-sm" onclick="scrollDoc('doc-formules')">📐 Formules</button>
+    <button class="btn btn-g btn-sm" onclick="scrollDoc('doc-fiscalite')">⚖ Fiscalité</button>
+    <button class="btn btn-g btn-sm" onclick="scrollDoc('doc-outils')">🔧 Outils</button>
+    <button class="btn btn-g btn-sm" onclick="scrollDoc('doc-export')">💾 Exports</button>
+    <button class="btn btn-g btn-sm" onclick="scrollDoc('doc-glossaire')">📚 Glossaire</button>
+    <button class="btn btn-g btn-sm" onclick="scrollDoc('doc-faq')">❓ FAQ</button>
+  </div>
+
+  <div id="docContent">
+
+  <!-- ── 1. DÉMARRAGE RAPIDE ── -->
+  <div class="doc-section" id="doc-start">
+    <div class="doc-section-head" onclick="toggleDoc('ds0')">
+      <span class="doc-icon">🚀</span>
+      <span class="doc-title">Démarrage rapide — Simuler un bien en 5 minutes</span>
+      <span class="doc-arrow" id="da0">▼</span>
+    </div>
+    <div class="doc-body" id="db0">
+      <div class="doc-steps">
+        <div class="doc-step">
+          <div class="doc-step-num">1</div>
+          <div class="doc-step-content">
+            <div class="doc-step-title">Saisir le bien</div>
+            <div class="doc-step-desc">Entrez le prix affiché par le vendeur. Si vous souhaitez négocier, saisissez un pourcentage de négociation — le prix négocié se calcule automatiquement. Remplissez la ville, le type de bien et la surface.</div>
+          </div>
+        </div>
+        <div class="doc-step">
+          <div class="doc-step-num">2</div>
+          <div class="doc-step-content">
+            <div class="doc-step-title">Coût d'acquisition</div>
+            <div class="doc-step-desc">Les frais de notaire sont calculés automatiquement (8,5% ancien / 3% neuf). Ajoutez les frais d'agence, les travaux prévus et l'ameublement si location meublée.</div>
+          </div>
+        </div>
+        <div class="doc-step">
+          <div class="doc-step-num">3</div>
+          <div class="doc-step-content">
+            <div class="doc-step-title">Financement</div>
+            <div class="doc-step-desc">Saisissez votre apport — le montant emprunté se calcule automatiquement. Renseignez le taux et la durée. La mensualité s'affiche en temps réel.</div>
+          </div>
+        </div>
+        <div class="doc-step">
+          <div class="doc-step-num">4</div>
+          <div class="doc-step-content">
+            <div class="doc-step-title">Exploitation locative</div>
+            <div class="doc-step-desc">Entrez le loyer mensuel hors charges. Renseignez le taux de vacance (% du temps sans locataire) et le taux d'impayés. Ajoutez toutes les charges annuelles.</div>
+          </div>
+        </div>
+        <div class="doc-step">
+          <div class="doc-step-num">5</div>
+          <div class="doc-step-content">
+            <div class="doc-step-title">Fiscalité et calcul</div>
+            <div class="doc-step-desc">Choisissez votre régime fiscal (le simulateur indique le meilleur automatiquement). Cliquez sur <strong>Calculer la rentabilité</strong> — tous les résultats s'affichent à droite.</div>
+          </div>
+        </div>
+      </div>
+      <div class="doc-tip">
+        <span class="doc-tip-icon">💡</span>
+        <span>Utilisez le bouton <strong>↺ Démo</strong> pour charger un exemple complet pré-rempli et explorer toutes les fonctionnalités.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. FORMULES ── -->
+  <div class="doc-section" id="doc-formules">
+    <div class="doc-section-head" onclick="toggleDoc('ds1')">
+      <span class="doc-icon">📐</span>
+      <span class="doc-title">Formules et calculs utilisés</span>
+      <span class="doc-arrow" id="da1">▼</span>
+    </div>
+    <div class="doc-body" id="db1">
+      <div class="doc-formula-grid">
+        <div class="doc-formula">
+          <div class="doc-f-name">Coût total du projet</div>
+          <div class="doc-f-eq">Prix + Notaire + Agence + Travaux + Ameublement + Divers</div>
+          <div class="doc-f-desc">Représente le capital total immobilisé dans l'opération, base de calcul de la rentabilité.</div>
+        </div>
+        <div class="doc-formula">
+          <div class="doc-f-name">Mensualité de crédit</div>
+          <div class="doc-f-eq">M = C × [t(1+t)ⁿ] / [(1+t)ⁿ − 1]</div>
+          <div class="doc-f-desc">Formule d'annuité constante. C = capital, t = taux mensuel (taux annuel ÷ 12), n = nombre de mensualités.</div>
+        </div>
+        <div class="doc-formula">
+          <div class="doc-f-name">Rentabilité brute</div>
+          <div class="doc-f-eq">(Loyer annuel / Coût total) × 100</div>
+          <div class="doc-f-desc">Indicateur simple avant charges. Un bien à 6% brut est considéré correct. 8%+ est excellent.</div>
+        </div>
+        <div class="doc-formula">
+          <div class="doc-f-name">Rentabilité nette</div>
+          <div class="doc-f-eq">((Loyer annuel − Charges) / Coût total) × 100</div>
+          <div class="doc-f-desc">Tient compte des charges (taxe foncière, PNO, copro, gestion…). Hors impôts sur les revenus.</div>
+        </div>
+        <div class="doc-formula">
+          <div class="doc-f-name">Cash-flow mensuel avant impôt</div>
+          <div class="doc-f-eq">(Revenus nets − Charges) ÷ 12 − Mensualité</div>
+          <div class="doc-f-desc">Argent en poche chaque mois avant paiement des impôts sur les revenus locatifs.</div>
+        </div>
+        <div class="doc-formula">
+          <div class="doc-f-name">Cash-flow après impôt</div>
+          <div class="doc-f-eq">CF avant impôt − (Impôt estimé ÷ 12)</div>
+          <div class="doc-f-desc">Résultat réel mensuel une fois les impôts payés. C'est l'indicateur le plus important.</div>
+        </div>
+        <div class="doc-formula">
+          <div class="doc-f-name">Vacance locative</div>
+          <div class="doc-f-eq">Loyer annuel × (1 − % vacance) × (1 − % impayés)</div>
+          <div class="doc-f-desc">Revenu effectif après prise en compte des périodes sans locataire et des risques d'impayés.</div>
+        </div>
+        <div class="doc-formula">
+          <div class="doc-f-name">Amortissement immeuble (LMNP)</div>
+          <div class="doc-f-eq">Prix hors terrain × 2,5% / an (durée 40 ans)</div>
+          <div class="doc-f-desc">Le terrain ne s'amortit pas (estimé à 10–20% du prix). L'amortissement réduit le revenu imposable sans sortie d'argent réelle.</div>
+        </div>
+      </div>
+      <div class="doc-tip">
+        <span class="doc-tip-icon">⚠️</span>
+        <span>Tous les calculs sont des <strong>estimations indicatives</strong>. Les montants réels peuvent varier selon votre situation personnelle, les négociations avec votre banque et votre régime fiscal exact.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. FISCALITÉ ── -->
+  <div class="doc-section" id="doc-fiscalite">
+    <div class="doc-section-head" onclick="toggleDoc('ds2')">
+      <span class="doc-icon">⚖</span>
+      <span class="doc-title">Les régimes fiscaux expliqués</span>
+      <span class="doc-arrow" id="da2">▼</span>
+    </div>
+    <div class="doc-body" id="db2">
+      <div class="doc-regime-grid">
+        <div class="doc-regime">
+          <div class="doc-r-badge" style="background:var(--saa);color:var(--sa);border:1px solid var(--sab)">Micro-foncier</div>
+          <div class="doc-r-title">Location nue — abattement 30%</div>
+          <div class="doc-r-desc">Le plus simple. L'administration applique automatiquement un abattement de 30% sur vos loyers bruts pour couvrir les charges de façon forfaitaire. Vous ne déduisez aucune charge réelle.</div>
+          <div class="doc-r-when"><strong>Quand l'utiliser :</strong> Si vos charges réelles sont inférieures à 30% de vos loyers, et si vos revenus fonciers bruts ne dépassent pas 15 000€/an.</div>
+        </div>
+        <div class="doc-regime">
+          <div class="doc-r-badge" style="background:var(--ea);color:var(--em);border:1px solid var(--eb)">Réel foncier</div>
+          <div class="doc-r-title">Location nue — charges réelles</div>
+          <div class="doc-r-desc">Vous déduisez toutes les charges réelles : intérêts d'emprunt, assurance, travaux, taxe foncière, frais de gestion… Si les charges dépassent les loyers, vous créez un <strong>déficit foncier</strong> imputable sur le revenu global (jusqu'à 10 700€/an).</div>
+          <div class="doc-r-when"><strong>Quand l'utiliser :</strong> Si vous avez beaucoup de charges ou des travaux importants, ou si vos charges réelles dépassent 30% des loyers.</div>
+        </div>
+        <div class="doc-regime">
+          <div class="doc-r-badge" style="background:var(--pua);color:var(--pu);border:1px solid rgba(167,139,248,.25)">Micro-BIC</div>
+          <div class="doc-r-title">Location meublée — abattement 50%</div>
+          <div class="doc-r-desc">Pour la location meublée. L'abattement est de 50% (contre 30% en micro-foncier), ce qui est plus avantageux si vos charges réelles sont faibles. Plafond de revenus locatifs bruts : 77 700€/an.</div>
+          <div class="doc-r-when"><strong>Quand l'utiliser :</strong> Petit bien meublé avec peu de charges, simplicité déclarative souhaitée.</div>
+        </div>
+        <div class="doc-regime">
+          <div class="doc-r-badge" style="background:var(--ga);color:var(--gold);border:1px solid var(--gb)">LMNP Réel</div>
+          <div class="doc-r-title">Location meublée — amortissements</div>
+          <div class="doc-r-desc">Le régime le plus puissant pour la location meublée. Vous déduisez les charges réelles <strong>ET</strong> les amortissements comptables (immeuble, mobilier, travaux). Dans la plupart des cas, le résultat fiscal est nul ou très faible pendant des années.</div>
+          <div class="doc-r-when"><strong>Quand l'utiliser :</strong> Presque toujours en meublé si vous achetez un bien significatif. Nécessite un expert-comptable (prévoir ~400€/an).</div>
+        </div>
+        <div class="doc-regime">
+          <div class="doc-r-badge" style="background:var(--ama);color:var(--am);border:1px solid rgba(245,165,32,.25)">SCI à l'IR</div>
+          <div class="doc-r-title">Société Civile Immobilière — translucide</div>
+          <div class="doc-r-desc">La SCI elle-même ne paie pas d'impôt. Les revenus "remontent" chez les associés proportionnellement à leurs parts et sont imposés comme des revenus fonciers (régime réel obligatoire). Avantage principal : facilite la transmission du patrimoine.</div>
+          <div class="doc-r-when"><strong>Quand l'utiliser :</strong> Achat en famille ou entre associés, préparation de succession, gestion de plusieurs biens.</div>
+        </div>
+        <div class="doc-regime">
+          <div class="doc-r-badge" style="background:var(--saa);color:var(--sa);border:1px solid var(--sab)">SCI à l'IS</div>
+          <div class="doc-r-title">Société Civile Immobilière — impôt société</div>
+          <div class="doc-r-desc">La SCI paie l'IS (15% jusqu'à 42 500€ de bénéfice, 25% au-delà). Les amortissements sont déductibles. Si les bénéfices sont réinvestis et non distribués, la fiscalité est reportée. Attention : la plus-value à la revente est taxée différemment (pas d'abattement pour durée de détention).</div>
+          <div class="doc-r-when"><strong>Quand l'utiliser :</strong> Stratégie long terme de capitalisation, TMI élevée, revenus réinvestis dans de nouveaux biens.</div>
+        </div>
+      </div>
+      <div class="doc-tip">
+        <span class="doc-tip-icon">💡</span>
+        <span>L'onglet <strong>⚖ Régimes</strong> compare automatiquement tous les régimes pour votre bien et met en évidence le plus avantageux. Consultez un expert-comptable pour valider le choix optimal pour votre situation personnelle.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. OUTILS ── -->
+  <div class="doc-section" id="doc-outils">
+    <div class="doc-section-head" onclick="toggleDoc('ds3')">
+      <span class="doc-icon">🔧</span>
+      <span class="doc-title">Guide des outils et analyses</span>
+      <span class="doc-arrow" id="da3">▼</span>
+    </div>
+    <div class="doc-body" id="db3">
+      <div class="doc-tools-list">
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">⚡ Stress test</div>
+          <div class="doc-tool-desc">Simule l'impact simultané de plusieurs chocs négatifs sur votre investissement. Les trois scénarios préconfigurés (pessimiste, réaliste, optimiste) appliquent des variations sur le loyer, le taux d'intérêt et la vacance locative. Utilisez le stress test personnalisé pour tester vos propres hypothèses. Un bon investissement reste cash-flow positif même en scénario pessimiste.</div>
+        </div>
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">🧾 Tableau fiscal annuel</div>
+          <div class="doc-tool-desc">Récapitulatif année par année des revenus locatifs, intérêts d'emprunt déductibles, charges et impôt estimé. Indique les formulaires fiscaux à remplir (2044, 2031, etc.). Signale si vous créez un déficit foncier et si vous dépassez la limite de 10 700€ imputable sur le revenu global.</div>
+        </div>
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">🗓 Calendrier des flux</div>
+          <div class="doc-tool-desc">Vue mensuelle de vos entrées et sorties d'argent sur une année. Les mois en rouge indiquent un solde négatif. Les mois avec une double bordure signalent des dépenses ponctuelles importantes (taxe foncière en octobre, assurance PNO en janvier, comptabilité en décembre). Utile pour anticiper les besoins de trésorerie.</div>
+        </div>
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">📊 Analyse détaillée</div>
+          <div class="doc-tool-desc">Projections sur toute la durée du prêt. Comprend : graphique patrimoine net vs plus-value latente, cash-flow mensuel revalorisé avec l'IRL, tableau d'amortissement du crédit complet (capital / intérêts / capital restant pour chaque année), simulation de revente avec calcul de la plus-value et de l'abattement selon la durée de détention.</div>
+        </div>
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">🎯 Score d'investissement</div>
+          <div class="doc-tool-desc">Note sur 100 calculée selon 5 critères : rentabilité brute (30 pts), cash-flow (25 pts), DPE (15 pts), vacance locative (15 pts), ratio mensualité/loyer (15 pts). Un score &gt; 60 indique un bon investissement. Le score est visible dans les résultats et dans le portefeuille.</div>
+        </div>
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">💶 Loyer optimal</div>
+          <div class="doc-tool-desc">Calcule le loyer mensuel nécessaire pour atteindre une cible de rentabilité brute donnée (4% à 8%). Également disponible : comparaison avec les loyers moyens du marché local (onglet Outils) — une alerte s'affiche si votre loyer dépasse le marché de plus de 15%.</div>
+        </div>
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">⚖ Effet levier</div>
+          <div class="doc-tool-desc">Compare les deux stratégies : acheter comptant (tout le capital immobilisé) vs acheter à crédit (apport réduit, capital restant disponible pour d'autres investissements). Affiche le rendement sur apport dans les deux cas. Le crédit est avantageux quand le rendement brut dépasse le coût du crédit.</div>
+        </div>
+        <div class="doc-tool-item">
+          <div class="doc-tool-name">🔄 Simulateur de refinancement</div>
+          <div class="doc-tool-desc">Simule le rachat de votre crédit après N années à un taux inférieur. Calcule les IRA (Indemnités de Remboursement Anticipé, plafonnées à 3% du capital ou 6 mois d'intérêts), la nouvelle mensualité, le gain total et le point mort (nombre de mois nécessaires pour rentabiliser l'opération).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. EXPORTS ── -->
+  <div class="doc-section" id="doc-export">
+    <div class="doc-section-head" onclick="toggleDoc('ds4')">
+      <span class="doc-icon">💾</span>
+      <span class="doc-title">Exports, imports et partage</span>
+      <span class="doc-arrow" id="da4">▼</span>
+    </div>
+    <div class="doc-body" id="db4">
+      <div class="doc-export-grid">
+        <div class="doc-export-item">
+          <div class="doc-ex-icon">📦</div>
+          <div class="doc-ex-name">Export JSON</div>
+          <div class="doc-ex-desc">Exporte l'intégralité de vos données : simulation en cours, portefeuille complet, historique des 30 derniers calculs, état de la checklist. C'est votre sauvegarde principale — à conserver régulièrement.</div>
+          <div class="doc-ex-how">Bouton <strong>↓ JSON</strong> dans la barre supérieure ou le menu mobile.</div>
+        </div>
+        <div class="doc-export-item">
+          <div class="doc-ex-icon">↑</div>
+          <div class="doc-ex-name">Import JSON</div>
+          <div class="doc-ex-desc">Réimporte un fichier JSON précédemment exporté. Restaure toutes vos données : simulation, portefeuille, historique. Fonctionne entre différentes sessions et différents navigateurs.</div>
+          <div class="doc-ex-how">Bouton <strong>↑ Import</strong> → sélectionnez votre fichier .json</div>
+        </div>
+        <div class="doc-export-item">
+          <div class="doc-ex-icon">📄</div>
+          <div class="doc-ex-name">Dossier PDF banque</div>
+          <div class="doc-ex-desc">Document professionnel 3 pages : couverture avec KPIs, détail de l'acquisition et du financement, résultats de rentabilité et comparatif de tous les régimes fiscaux. Mention d'avertissement incluse.</div>
+          <div class="doc-ex-how">Bouton <strong>↓ PDF</strong> — nécessite que le calcul ait été lancé.</div>
+        </div>
+        <div class="doc-export-item">
+          <div class="doc-ex-icon">📊</div>
+          <div class="doc-ex-name">Export CSV</div>
+          <div class="doc-ex-desc">Tableau de tous les indicateurs exporté en format CSV avec séparateur point-virgule, compatible Excel et Google Sheets. Encoding UTF-8 avec BOM pour les caractères spéciaux.</div>
+          <div class="doc-ex-how">Bouton <strong>↓ CSV</strong> — ouvre directement dans Excel.</div>
+        </div>
+        <div class="doc-export-item">
+          <div class="doc-ex-icon">🔗</div>
+          <div class="doc-ex-name">Partage par lien URL</div>
+          <div class="doc-ex-desc">Encode toute la saisie dans l'URL (base64). La personne qui reçoit le lien voit la simulation pré-remplie. Elle peut modifier les valeurs sans affecter votre version. Le lien peut devenir très long — utilisez un raccourcisseur d'URL si nécessaire.</div>
+          <div class="doc-ex-how">Bouton <strong>🔗 Partager</strong> → lien copié dans le presse-papier.</div>
+        </div>
+        <div class="doc-export-item">
+          <div class="doc-ex-icon">🖨</div>
+          <div class="doc-ex-name">Impression optimisée</div>
+          <div class="doc-ex-desc">La page est optimisée pour l'impression A4 : navigation masquée, couleurs adaptées, graphiques inclus. Fonctionne avec la fonction Imprimer du navigateur ou Enregistrer en PDF.</div>
+          <div class="doc-ex-how">Bouton <strong>🖨</strong> ou Ctrl+P depuis votre navigateur.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6. GLOSSAIRE ── -->
+  <div class="doc-section" id="doc-glossaire">
+    <div class="doc-section-head" onclick="toggleDoc('ds5')">
+      <span class="doc-icon">📚</span>
+      <span class="doc-title">Glossaire des termes immobiliers</span>
+      <span class="doc-arrow" id="da5">▼</span>
+    </div>
+    <div class="doc-body" id="db5">
+      <div class="doc-glossaire" id="glossaireContent">
+        <!-- Généré par JS -->
+      </div>
+      <input type="text" id="glossFilter" placeholder="Filtrer le glossaire…" oninput="filterGlossaire()" style="margin-top:12px;font-size:.82rem"/>
+    </div>
+  </div>
+
+  <!-- ── 7. FAQ ── -->
+  <div class="doc-section" id="doc-faq">
+    <div class="doc-section-head" onclick="toggleDoc('ds6')">
+      <span class="doc-icon">❓</span>
+      <span class="doc-title">Questions fréquentes (FAQ)</span>
+      <span class="doc-arrow" id="da6">▼</span>
+    </div>
+    <div class="doc-body" id="db6">
+      <div class="doc-faq-list" id="faqContent">
+        <!-- Généré par JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. RACCOURCIS ── -->
+  <div class="doc-section">
+    <div class="doc-section-head" onclick="toggleDoc('ds7')">
+      <span class="doc-icon">⌨</span>
+      <span class="doc-title">Raccourcis et astuces</span>
+      <span class="doc-arrow" id="da7">▼</span>
+    </div>
+    <div class="doc-body" id="db7">
+      <div class="fg" style="gap:10px">
+        <div class="doc-shortcut-card">
+          <div class="doc-sh-title">Résultats temps réel</div>
+          <div class="doc-sh-desc">Les résultats se mettent à jour automatiquement 0,5 seconde après votre dernière frappe, sans avoir à cliquer sur Calculer. Utile pour explorer rapidement différents scénarios.</div>
+        </div>
+        <div class="doc-shortcut-card">
+          <div class="doc-sh-title">Frais de notaire automatiques</div>
+          <div class="doc-sh-desc">Laissez le champ "Frais de notaire" vide — le simulateur applique automatiquement 7,5% pour l'ancien et 3% pour le neuf. Saisissez une valeur si votre notaire vous a donné un devis précis.</div>
+        </div>
+        <div class="doc-shortcut-card">
+          <div class="doc-sh-title">Mensualité manuelle</div>
+          <div class="doc-sh-desc">Si votre banque vous a donné une mensualité précise, saisissez-la dans "Mensualité manuelle" — elle remplace le calcul automatique. Laissez vide pour utiliser la formule.</div>
+        </div>
+        <div class="doc-shortcut-card">
+          <div class="doc-sh-title">Montant emprunté</div>
+          <div class="doc-sh-desc">Laissez vide pour calculer automatiquement (coût total − apport). Utile si vous avez plusieurs apports ou une configuration particulière.</div>
+        </div>
+        <div class="doc-shortcut-card">
+          <div class="doc-sh-title">Présets d'amortissement</div>
+          <div class="doc-sh-desc">En LMNP Réel ou SCI IS, cochez les cases de présets (immeuble, mobilier, travaux) — le simulateur calcule automatiquement les amortissements selon les durées légales standard.</div>
+        </div>
+        <div class="doc-shortcut-card">
+          <div class="doc-sh-title">Historique automatique</div>
+          <div class="doc-sh-desc">Chaque calcul est sauvegardé automatiquement dans l'onglet Historique (30 entrées max). Pas besoin de sauvegarder manuellement pour retrouver vos simulations récentes.</div>
+        </div>
+      </div>
+      <div class="doc-tip" style="margin-top:14px">
+        <span class="doc-tip-icon">🎯</span>
+        <span>Pour comparer plusieurs biens : calculez chaque bien puis cliquez sur <strong>⊕ Comparer</strong> (jusqu'à 3 biens côte à côte). Pour garder un bien définitivement, cliquez sur <strong>📁 Portefeuille</strong>.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 9. AVERTISSEMENTS ── -->
+  <div style="margin-top:20px;background:var(--ra);border:1px solid var(--rb);border-radius:var(--r2);padding:16px">
+    <div style="font-size:.85rem;font-weight:700;color:var(--ru);margin-bottom:8px">⚠ Avertissements importants</div>
+    <ul style="list-style:none;display:flex;flex-direction:column;gap:6px">
+      <li style="font-size:.76rem;color:var(--ink2);display:flex;gap:8px"><span style="color:var(--ru);flex-shrink:0">→</span>Les résultats affichés sont des <strong>estimations indicatives</strong> basées sur les données saisies. Ils ne constituent pas un conseil fiscal, juridique ou financier officiel.</li>
+      <li style="font-size:.76rem;color:var(--ink2);display:flex;gap:8px"><span style="color:var(--ru);flex-shrink:0">→</span>Les calculs fiscaux sont <strong>simplifiés</strong>. Votre situation personnelle (autres revenus, charges de famille, déficits antérieurs…) peut modifier significativement le résultat réel.</li>
+      <li style="font-size:.76rem;color:var(--ink2);display:flex;gap:8px"><span style="color:var(--ru);flex-shrink:0">→</span>Consultez un <strong>expert-comptable</strong> ou un <strong>conseiller en gestion de patrimoine</strong> avant toute décision d'investissement.</li>
+      <li style="font-size:.76rem;color:var(--ink2);display:flex;gap:8px"><span style="color:var(--ru);flex-shrink:0">→</span>Les données du marché locatif sont des références générales — les loyers réels varient selon le quartier, l'état du bien et la demande locale.</li>
+    </ul>
+  </div>
+
+  </div><!-- /docContent -->
+</div><!-- /page -->
+</div><!-- /view-doc -->
+
+<!-- MODALS -->
+<div id="modalSave" class="mbg"><div class="mbox">
+  <h3>Ajouter au portefeuille</h3>
+  <p>Donnez un nom à ce projet.</p>
+  <div class="field"><input type="text" id="nomProjet" placeholder="ex : T2 Lyon Confluence" maxlength="60"/></div>
+  <div class="m-actions"><button class="btn btn-g" onclick="closeMod('modalSave')">Annuler</button><button class="btn btn-p" onclick="savePortf()">Ajouter</button></div>
+</div></div>
+
+<div id="modalLot" class="mbg"><div class="mbox wide">
+  <h3>Ajouter un lot</h3>
+  <p>Renseignez les informations de ce lot (appartement, parking, local…).</p>
+  <div class="fg">
+    <div class="field"><label>Nom du lot</label><input type="text" id="lotNom" placeholder="ex : Appart. 3ème étage"/></div>
+    <div class="field"><label>Type</label><select id="lotType"><option>Appartement</option><option>Parking</option><option>Local commercial</option><option>Cave</option><option>Autre</option></select></div>
+    <div class="field"><label>Surface (m²)</label><input type="number" id="lotSurf" placeholder="35" min="0"/></div>
+    <div class="field"><label>Loyer mensuel HC (€)</label><input type="number" id="lotLoyer" placeholder="450" min="0"/></div>
+    <div class="field"><label>Vacance (%)</label><input type="number" id="lotVac" placeholder="5" min="0"/></div>
+    <div class="field"><label>Charges annuelles (€)</label><input type="number" id="lotCharges" placeholder="500" min="0"/></div>
+  </div>
+  <div class="m-actions"><button class="btn btn-g" onclick="closeMod('modalLot')">Annuler</button><button class="btn btn-p" onclick="saveLot()">Ajouter le lot</button></div>
+</div></div>
+
+<div id="toasts"></div>
+
+
+<!-- Modules ImmoSim (chargés avant app.js) -->
+<script src="assets/js/modules/storage.js"></script>
+<script src="assets/js/app.js"></script>
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     MODULES ADDITIFS — à charger APRÈS app.js, sans defer.
+     L'ordre compte :
+       · visite.js                 → onglet « Visite » (grille de contrôle)
+       · objectif-rentabilite.js   → prix cible par objectif de rentabilité
+       · lq-pdf.js                 → moteur PDF éditorial (redéfinit exportPDF)
+     lq-pdf.js doit passer en dernier : il interroge objectif-rentabilite.js
+     au moment de générer la section « Prix cible » du dossier.
+     ════════════════════════════════════════════════════════════════════════ -->
+<script src="assets/js/modules/immeuble.js"></script>
+<script src="assets/js/modules/visite.js"></script>
+<script src="assets/js/modules/objectif-rentabilite.js"></script>
+<script src="assets/js/lq-pdf.js"></script>
+<!--  · radar-auto.js             → déclenche calc() puis exportPDF() sur ?auto=pdf
+        (appelé par l'extension ImmoSim Radar depuis une annonce)
+        Il vient après lq-pdf.js : c'est l'exportPDF redéfini qu'il doit trouver. -->
+<script src="assets/js/radar-auto.js"></script>
+
+
+<!-- ══ MODALE CLOUD SYNC ══ -->
+<div class="modal-overlay" id="cloudModal">
+  <div class="modal-box">
+    <h2>☁ Sauvegarde cloud <button class="modal-close" onclick="closeModal('cloudModal')">×</button></h2>
+    <p style="font-size:.76rem;color:var(--ink2);margin-bottom:14px;line-height:1.55">
+      Synchronisez vos simulations entre appareils via <strong>JSONBin.io</strong> (gratuit, sans installation).
+      <a href="https://jsonbin.io" target="_blank" style="color:var(--gold)">Créez un compte gratuit →</a>
+    </p>
+    <div class="fg">
+      <div class="field s2">
+        <label>Votre clé API JSONBin (Master Key)</label>
+        <input type="password" id="cloud_apikey" placeholder="$2b$10$..."/>
+        <span class="hint">Disponible dans votre dashboard JSONBin → API Keys</span>
+      </div>
+      <div class="field s2">
+        <label>ID de votre bin (pour charger/synchroniser)</label>
+        <input type="text" id="cloud_binid" placeholder="64abc123def456..."/>
+        <span class="hint">Laissez vide pour créer un nouveau bin à la première sauvegarde</span>
+      </div>
+    </div>
+    <div id="cloud_status" style="font-size:.75rem;color:var(--ink3);min-height:18px;margin-top:8px"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="cloudSave()" style="flex:1">☁ Sauvegarder</button>
+      <button class="btn btn-b" onclick="cloudLoad()" style="flex:1">⬇ Charger depuis le cloud</button>
+    </div>
+    <p style="font-size:.67rem;color:var(--ink4);margin-top:10px">Vos données sont stockées sur votre compte JSONBin personnel. ImmoSim n'a accès à aucun serveur externe.</p>
+  </div>
+</div>
+
+
+<!-- ══ MODALE PAGE DE GARDE ══ -->
+<div class="modal-overlay" id="identityModal">
+  <div class="modal-box">
+    <h2>🏢 Personnalisation du dossier PDF <button class="modal-close" onclick="closeIdentityModal()">×</button></h2>
+    <!-- Onglets -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchModalTab('tab-identity',this)">👤 Cabinet</button>
+      <button class="modal-tab" onclick="switchModalTab('tab-colors',this)">🎨 Couleurs PDF</button>
+      <button class="modal-tab" onclick="switchModalTab('tab-export',this)">📤 Exports</button>
+    </div>
+
+    <!-- Onglet 1 : Identité -->
+    <div class="modal-tabpane active" id="tab-identity">
+      <div class="fg">
+        <div class="field s2"><label>Nom du cabinet / société</label><input type="text" id="id_cabinet" placeholder="Cabinet Dupont Immobilier"/></div>
+        <div class="field"><label>Nom du conseiller</label><input type="text" id="id_conseiller" placeholder="Jean Dupont"/></div>
+        <div class="field"><label>Titre / fonction</label><input type="text" id="id_titre" placeholder="Conseiller en gestion de patrimoine"/></div>
+        <div class="field"><label>Téléphone</label><input type="text" id="id_tel" placeholder="+33 6 00 00 00 00"/></div>
+        <div class="field"><label>Email</label><input type="email" id="id_email" placeholder="contact@cabinet.fr"/></div>
+        <div class="field"><label>Site web</label><input type="text" id="id_web" placeholder="www.cabinet.fr"/></div>
+        <div class="field s2"><label>Adresse</label><input type="text" id="id_adresse" placeholder="12 rue de la Paix, 75001 Paris"/></div>
+        <div class="field s2">
+          <label>Logo cabinet (couverture PDF)</label>
+          <input type="file" id="id_logo_input" accept="image/*" onchange="handleIdentityLogo(this)"/>
+          <img id="id_logo_preview" class="logo-preview"/>
+          <button class="btn btn-d btn-sm" id="id_logo_del" style="margin-top:6px;display:none" onclick="removeIdentityLogo()">× Supprimer le logo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Onglet 2 : Couleurs PDF -->
+    <div class="modal-tabpane" id="tab-colors">
+      <p style="font-size:.73rem;color:var(--ink2);margin-bottom:12px">Personnalisez chaque couleur du PDF. Cliquez sur une couleur pour la modifier.</p>
+
+      <div style="font-size:.7rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Couleurs principales</div>
+      <div id="colorRowsPrimary"></div>
+
+      <div style="font-size:.7rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px">Couleurs sémantiques</div>
+      <div id="colorRowsSemantic"></div>
+
+      <div style="font-size:.7rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px">Couleurs de fond</div>
+      <div id="colorRowsBg"></div>
+
+      <!-- Prévisualisation bande de couleurs -->
+      <div style="margin-top:14px">
+        <div style="font-size:.7rem;color:var(--ink3);margin-bottom:4px">Aperçu</div>
+        <div class="color-preview-bar" id="colorPreviewBar"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-g btn-sm" onclick="resetAllColors()">↺ Réinitialiser</button>
+        <button class="btn btn-g btn-sm" onclick="applyColorPreset('pro')">🏢 Pro (doré)</button>
+        <button class="btn btn-g btn-sm" onclick="applyColorPreset('bleu')">🔵 Corporate bleu</button>
+        <button class="btn btn-g btn-sm" onclick="applyColorPreset('vert')">🟢 Éco vert</button>
+      </div>
+    </div>
+
+    <!-- Onglet 3 : Exports -->
+    <div class="modal-tabpane" id="tab-export">
+      <p style="font-size:.73rem;color:var(--ink2);margin-bottom:12px">Exportez votre simulation dans différents formats.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="computed-row">
+          <span class="lbl">📄 PDF professionnel (couleurs personnalisées)</span>
+          <button class="btn btn-p btn-sm" onclick="saveIdentity();exportPDF()">↓ PDF</button>
+        </div>
+        <div class="computed-row">
+          <span class="lbl">📝 Document Word (.docx) — éditable</span>
+          <button class="btn btn-b btn-sm" onclick="saveIdentity();exportDOCX()">↓ DOCX</button>
+        </div>
+        <div class="computed-row">
+          <span class="lbl">📊 Google Docs — ouvrir en ligne</span>
+          <button class="btn btn-em btn-sm" onclick="saveIdentity();exportGoogleDocs()">↗ Google Docs</button>
+        </div>
+        <div class="computed-row">
+          <span class="lbl">📋 Google Sheets — tableau de bord</span>
+          <button class="btn btn-em btn-sm" onclick="saveIdentity();exportGSheets()">↗ Sheets</button>
+        </div>
+        <div class="computed-row">
+          <span class="lbl">📦 CSV — données brutes</span>
+          <button class="btn btn-g btn-sm" onclick="saveIdentity();exportCSV()">↓ CSV</button>
+        </div>
+      </div>
+      <p style="font-size:.67rem;color:var(--ink4);margin-top:14px">Le DOCX est généré côté client. Google Docs nécessite une connexion internet.</p>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--bd)">
+      <button class="btn btn-p btn-full" onclick="saveIdentity()">💾 Enregistrer</button>
+      <button class="btn btn-d btn-sm" onclick="clearIdentity()">Effacer tout</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ MODALE RAPPORT EXPRESS ══ -->
+<div class="modal-overlay express-modal" id="expressModal">
+  <div class="modal-box">
+    <h2>⚡ Rapport express <button class="modal-close" onclick="closeModal('expressModal')">×</button></h2>
+    <p style="font-size:.76rem;color:var(--ink2);margin-bottom:14px">Simulez en 5 secondes. Résultats instantanés sans remplir tout le formulaire.</p>
+    <div class="fg">
+      <div class="field"><label>Prix d'achat (€)</label><input type="number" id="ex_prix" placeholder="150 000" oninput="calcExpress()"/></div>
+      <div class="field"><label>Loyer mensuel (€)</label><input type="number" id="ex_loyer" placeholder="700" oninput="calcExpress()"/></div>
+      <div class="field"><label>Apport (€)</label><input type="number" id="ex_apport" placeholder="20 000" oninput="calcExpress()"/></div>
+      <div class="field"><label>Taux crédit (%)</label><input type="number" id="ex_taux" placeholder="3.65" step="0.01" oninput="calcExpress()"/></div>
+      <div class="field s2"><label>Durée (ans)</label><input type="number" id="ex_duree" placeholder="20" min="5" max="30" oninput="calcExpress()"/></div>
+    </div>
+    <div id="expressResult" style="display:none">
+      <div class="express-result">
+        <div class="er-title">Résultats instantanés</div>
+        <div class="er-row"><span>Frais de notaire (~8,5%)</span><span class="er-val gold" id="er_notaire">—</span></div>
+        <div class="er-row"><span>Coût total projet</span><span class="er-val gold" id="er_cout">—</span></div>
+        <div class="er-row"><span>Mensualité estimée</span><span class="er-val" id="er_mens">—</span></div>
+        <div class="er-row"><span>Rentabilité brute</span><span class="er-val gold" id="er_rent">—</span></div>
+        <div class="er-row"><span>Cash-flow avant impôt</span><span class="er-val" id="er_cf">—</span></div>
+        <div class="er-row"><span>Ratio mensualité / loyer</span><span class="er-val" id="er_ratio">—</span></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-p btn-full" onclick="importExpress()">📥 Importer dans le simulateur complet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ ONBOARDING ══ -->
+<div class="onboard-overlay" id="onboardOverlay">
+  <div class="onboard-box">
+    <button class="onboard-skip" onclick="closeOnboard()">Passer le tutoriel ✕</button>
+    <div class="onboard-step active" id="ob0">
+  <div class="onboard-icon">🏠</div>
+  <div class="onboard-title">Bienvenue sur ImmoSim V9</div>
+  <div class="onboard-text">L'agrégateur immobilier intelligent + simulateur patrimonial. Recherchez, analysez et comparez vos investissements locatifs.</div>
+</div>
+<div class="onboard-step" id="ob1">
+  <div class="onboard-icon">⚡</div>
+  <div class="onboard-title">Commencez en mode Express</div>
+  <div class="onboard-text">Cliquez sur le bouton <strong>⚡ Express</strong> en haut pour simuler avec 5 champs seulement. Résultats instantanés.</div>
+</div>
+<div class="onboard-step" id="ob2">
+  <div class="onboard-icon">📋</div>
+  <div class="onboard-title">Simulateur complet</div>
+  <div class="onboard-text">Remplissez le formulaire : bien, financement, loyer, charges et fiscalité. Calculez votre rentabilité exacte.</div>
+</div>
+<div class="onboard-step" id="ob3">
+  <div class="onboard-icon">📊</div>
+  <div class="onboard-title">Analyse & régimes fiscaux</div>
+  <div class="onboard-text">Comparez tous les régimes (Micro-foncier, LMNP Réel, SCI IS…) et trouvez automatiquement le meilleur.</div>
+</div>
+<div class="onboard-step" id="ob4">
+  <div class="onboard-icon">📄</div>
+  <div class="onboard-title">Export PDF professionnel</div>
+  <div class="onboard-text">Cliquez sur <strong>↓ PDF</strong> pour générer un dossier complet pour votre banquier ou vos clients.</div>
+</div>
+<div class="onboard-step" id="ob5">
+  <div class="onboard-icon">🏢</div>
+  <div class="onboard-title">Personnalisez votre dossier</div>
+  <div class="onboard-text">Cliquez sur <strong>🏢 Dossier</strong> pour ajouter votre logo, coordonnées et couleur de cabinet sur chaque PDF.</div>
+</div>
+    <div class="onboard-dots"><div class="onboard-dot active" id="obdot0"></div>
+<div class="onboard-dot" id="obdot1"></div>
+<div class="onboard-dot" id="obdot2"></div>
+<div class="onboard-dot" id="obdot3"></div>
+<div class="onboard-dot" id="obdot4"></div>
+<div class="onboard-dot" id="obdot5"></div></div>
+    <div class="onboard-nav">
+      <button class="btn btn-g" id="obPrev" onclick="obNav(-1)" style="display:none">← Précédent</button>
+      <button class="btn btn-p" id="obNext" onclick="obNav(1)">Suivant →</button>
+    </div>
+    <div style="margin-top:12px"><button onclick="closeOnboard()" style="background:none;border:none;font-size:.72rem;color:var(--ink3);cursor:pointer">Ne plus afficher</button></div>
+  </div>
+</div>
+
+<div class="autosave-badge" id="autosaveBadge">✓ Sauvegardé</div>
+
+<!-- ══ MODALE PARTAGE SHORTLIST ══ -->
+<div class="share-overlay" id="shareOverlay" onclick="if(event.target===this)closeShare()">
+  <div class="share-box">
+    <h3 style="font-family:'Libre Baskerville',serif;font-size:1.1rem;margin-bottom:4px">🔗 Partager ma shortlist</h3>
+    <p style="font-size:.75rem;color:var(--ink3);margin-bottom:14px">Envoyez votre sélection de <strong id="shareCount">0</strong> biens à votre banquier, conjoint ou expert-comptable.</p>
+
+    <div style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:6px">URL à partager</div>
+    <div class="share-url" id="shareUrl">—</div>
+
+    <div style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:6px">QR Code (scanner depuis mobile)</div>
+    <img class="share-qr" id="shareQR" src="" alt="QR Code"/>
+
+    <div class="share-actions">
+      <button class="btn btn-p btn-full" onclick="copyShareURL_shortlist()">📋 Copier l'URL</button>
+      <button class="btn btn-b" onclick="shareByEmail()">✉ Email</button>
+      <button class="btn btn-g" onclick="closeShare()">Fermer</button>
+    </div>
+
+    <p style="font-size:.62rem;color:var(--ink4);margin-top:12px;line-height:1.45">
+      ℹ Les données sont encodées dans l'URL (pas de serveur). Le destinataire peut ouvrir le lien directement dans ImmoSim.
+    </p>
+  </div>
+</div>
+
+<!-- ══ MODALE CALCULATEUR TMI ══ -->
+<div class="score-cust-overlay" id="tmiCalcOverlay" onclick="if(event.target===this)closeTMICalc()">
+  <div class="score-cust-box" style="max-width:600px">
+    <h3>📊 Calculateur de TMI</h3>
+    <p style="font-size:.76rem;color:var(--ink3);margin-bottom:16px">Renseignez votre situation fiscale. Le simulateur calculera votre tranche marginale d'imposition et l'impact de vos revenus locatifs.</p>
+
+    <div class="fg" style="gap:12px;margin-bottom:16px">
+      <div class="field">
+        <label>Revenu net imposable (€/an)</label>
+        <input type="number" id="tmi_revenu" placeholder="35 000" min="0" oninput="calcTMILive()"/>
+        <span class="hint">Ligne 1AJ+1BJ de votre avis d'imposition, ou revenu fiscal de référence</span>
+      </div>
+      <div class="field">
+        <label>Nombre de parts fiscales</label>
+        <input type="number" id="tmi_parts" placeholder="1" min="1" max="20" step="0.25" value="1" oninput="calcTMILive()"/>
+        <span class="hint">1 = célibataire, 2 = couple, +0.5/enfant</span>
+      </div>
+    </div>
+
+    <!-- Presets parts -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn btn-g btn-sm" onclick="sv('tmi_parts','1');calcTMILive()">Célibataire (1)</button>
+      <button class="btn btn-g btn-sm" onclick="sv('tmi_parts','2');calcTMILive()">Couple (2)</button>
+      <button class="btn btn-g btn-sm" onclick="sv('tmi_parts','2.5');calcTMILive()">Couple + 1 (2.5)</button>
+      <button class="btn btn-g btn-sm" onclick="sv('tmi_parts','3');calcTMILive()">Couple + 2 (3)</button>
+      <button class="btn btn-g btn-sm" onclick="sv('tmi_parts','3.5');calcTMILive()">Couple + 3 (3.5)</button>
+    </div>
+
+    <!-- Results -->
+    <div id="tmiCalcResult" style="display:none">
+      <!-- Current situation -->
+      <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:6px">📋 Votre situation actuelle</div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:14px;margin-bottom:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px" id="tmiKPIs"></div>
+        <div id="tmiBracketViz"></div>
+      </div>
+
+      <!-- Impact immobilier -->
+      <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:6px">🏠 Impact de l'investissement immobilier</div>
+      <div class="fg" style="gap:10px;margin-bottom:12px">
+        <div class="field">
+          <label>Revenu foncier net estimé (€/an)</label>
+          <input type="number" id="tmi_foncier" placeholder="5 000" oninput="calcTMILive()"/>
+          <span class="hint">Loyers − charges − intérêts</span>
+        </div>
+        <div class="field">
+          <label>Déficit foncier (€/an)</label>
+          <input type="number" id="tmi_deficit" placeholder="0" oninput="calcTMILive()"/>
+          <span class="hint">Si charges > loyers (max 10 700 €)</span>
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r2);padding:14px;margin-bottom:14px" id="tmiImpactBox"></div>
+
+      <!-- Barème détaillé -->
+      <details style="margin-bottom:14px">
+        <summary style="font-size:.72rem;color:var(--ink3);cursor:pointer;font-weight:600">Voir le barème détaillé 2025</summary>
+        <div id="tmiBaremeDetail" style="margin-top:8px"></div>
+      </details>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-p btn-full" onclick="applyTMICalc()">✓ Appliquer cette TMI au simulateur</button>
+      <button class="btn btn-g" onclick="closeTMICalc()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALE SCORE PERSONNALISÉ ══ -->
+<div class="score-cust-overlay" id="scoreCustOverlay" onclick="if(event.target===this)closeScoreCust()">
+  <div class="score-cust-box">
+    <h3>⚙ Personnaliser le score investisseur</h3>
+    <p style="font-size:.76rem;color:var(--ink3);margin-bottom:16px">Pondérez chaque critère selon votre stratégie. Le score sera recalculé en temps réel.</p>
+    <div class="score-slider"><label>Rentabilité brute <span id="sw_renta_v">35</span>%</label><input type="range" id="sw_renta" min="0" max="100" value="35" oninput="updateScoreWeights()"/><div class="sl-desc">Poids de la rentabilité brute dans le score global</div></div>
+    <div class="score-slider"><label>Cash-flow positif <span id="sw_cf_v">25</span>%</label><input type="range" id="sw_cf" min="0" max="100" value="25" oninput="updateScoreWeights()"/><div class="sl-desc">Privilégie les biens qui s'autofinancent</div></div>
+    <div class="score-slider"><label>DPE / Énergie <span id="sw_dpe_v">10</span>%</label><input type="range" id="sw_dpe" min="0" max="100" value="10" oninput="updateScoreWeights()"/><div class="sl-desc">Favorise les bons DPE (A-C), pénalise F-G</div></div>
+    <div class="score-slider"><label>Prix au m² <span id="sw_pm2_v">10</span>%</label><input type="range" id="sw_pm2" min="0" max="100" value="10" oninput="updateScoreWeights()"/><div class="sl-desc">Favorise les prix bas par rapport au marché</div></div>
+    <div class="score-slider"><label>Locataire en place <span id="sw_loc_v">10</span>%</label><input type="range" id="sw_loc" min="0" max="100" value="10" oninput="updateScoreWeights()"/><div class="sl-desc">Bonus pour revenus immédiats et sécurisés</div></div>
+    <div class="score-slider"><label>Pas de travaux <span id="sw_trav_v">10</span>%</label><input type="range" id="sw_trav" min="0" max="100" value="10" oninput="updateScoreWeights()"/><div class="sl-desc">Bonus quand aucun travaux n'est nécessaire</div></div>
+    <div class="score-preview" id="scorePreview"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-p btn-full" onclick="applyScoreWeights()">✓ Appliquer & recalculer</button>
+      <button class="btn btn-g" onclick="resetScoreWeights()">↺ Défaut</button>
+      <button class="btn btn-g" onclick="closeScoreCust()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALE PROFIL ALERTES ══ -->
+<div class="score-cust-overlay" id="alertProfileOverlay" onclick="if(event.target===this)closeAlertProfile()">
+  <div class="alert-profile-box">
+    <h3>🎯 Profil d'investissement & Alertes</h3>
+    <p style="font-size:.76rem;color:var(--ink3);margin-bottom:16px">Définissez votre profil idéal. Chaque annonce sera scorée en "% de match" et vous serez alerté des meilleures opportunités.</p>
+    <div class="fg" style="gap:10px;margin-bottom:14px">
+      <div class="field"><label>Ville cible</label><input type="text" id="ap_ville" placeholder="Arras"/></div>
+      <div class="field"><label>Budget max (€)</label><input type="number" id="ap_budget" placeholder="200 000"/></div>
+      <div class="field"><label>Rendement min (%)</label><input type="number" id="ap_renta" placeholder="7" step="0.5"/></div>
+      <div class="field"><label>Cash-flow min (€/mois)</label><input type="number" id="ap_cf" placeholder="0"/></div>
+      <div class="field"><label>Surface min (m²)</label><input type="number" id="ap_surf" placeholder="30"/></div>
+      <div class="field"><label>DPE max</label>
+        <select id="ap_dpe"><option value="">Indifférent</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select>
+      </div>
+      <div class="field"><label>Type de bien</label>
+        <select id="ap_type"><option value="">Tous</option><option>Studio</option><option>Appartement</option><option>Maison</option><option>Immeuble</option></select>
+      </div>
+      <div class="field"><label>Score min pour alerte</label><input type="number" id="ap_scoreMin" placeholder="70" min="0" max="100"/></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:14px">
+      <label class="agg-check"><input type="checkbox" id="ap_locataire"/><span class="ck-box">✓</span><span class="ck-icon">🔑</span><span class="ck-text">Locataire en place requis</span></label>
+      <label class="agg-check"><input type="checkbox" id="ap_noTravaux"/><span class="ck-box">✓</span><span class="ck-icon">✨</span><span class="ck-text">Sans travaux uniquement</span></label>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-p btn-full" onclick="saveAlertProfile()">💾 Enregistrer le profil</button>
+      <button class="btn btn-g" onclick="clearAlertProfile()">↺ Réinitialiser</button>
+      <button class="btn btn-g" onclick="closeAlertProfile()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
