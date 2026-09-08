@@ -2,7 +2,7 @@
 
 Application web statique pour analyser un investissement immobilier : recherche d'annonces, simulation de rentabilité, fiscalité, capacité d'emprunt, portefeuille, pipeline, shortlist, comparaison et exports PDF/CSV/JSON.
 
-**🟢 Mode hors-ligne** • **📱 Installable PWA** • **🔒 Proxy IA sécurisé** • **🧪 Tests automatisés**
+**🟢 Mode hors-ligne** • **📱 Installable PWA** • **🔒 Proxy IA sécurisé** • **🧪 Tests automatisés**ok
 
 ## Structure du projet
 
