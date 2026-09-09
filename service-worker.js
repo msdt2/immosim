@@ -10,7 +10,7 @@
  * Quand tu modifies tes fichiers, incrémente CACHE_VERSION pour forcer le rafraîchissement.
  */
 
-const CACHE_VERSION = 'immosim-v1.1.0';
+const CACHE_VERSION = 'immosim-v1.1.1';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`;
 
