@@ -1,0 +1,66 @@
+/* ═══════════════════════════════════════════════════════════════
+   safe-area.css — module additif pour ImmoSim
+   À charger APRÈS styles.css. Aucun fichier existant n'est modifié.
+
+   Problème corrigé : le manifeste déclare "display":"standalone" et
+   la balise viewport utilise viewport-fit=cover. Une fois ImmoSim
+   ajouté à l'écran d'accueil d'un iPhone, la page occupe donc tout
+   l'écran, barre d'état comprise. La topbar, en position:sticky top:0
+   avec height:52px, passe intégralement sous l'heure et les icônes
+   système : le titre se chevauche avec l'horloge et le bouton menu,
+   placé à l'extrémité droite, tombe dans une zone non cliquable.
+
+   Correctif : réserver les encoches système avec env(safe-area-inset-*).
+   Ces valeurs valent zéro dans un navigateur classique et sur bureau,
+   les règles sont donc sans effet partout ailleurs.
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Barre du haut ─────────────────────────────────────────── */
+.topbar{
+  height:auto;
+  min-height:var(--nav);
+  padding-top:env(safe-area-inset-top);
+  padding-left:max(18px, env(safe-area-inset-left));
+  padding-right:max(18px, env(safe-area-inset-right));
+}
+
+/* Le bouton menu doit rester atteignable au pouce : 44 px est le
+   minimum recommandé par Apple, contre 34 px auparavant. */
+@media(max-width:700px){
+  .hbg{
+    min-width:44px;
+    min-height:44px;
+    align-items:center;
+    justify-content:center;
+  }
+  .notif-bell{min-width:40px;min-height:40px}
+}
+
+/* ── Tiroir de navigation ──────────────────────────────────── */
+.drawer{
+  padding-top:calc(var(--nav) + env(safe-area-inset-top));
+  padding-bottom:env(safe-area-inset-bottom);
+  padding-left:env(safe-area-inset-left);
+}
+.drawer-close{top:calc(14px + env(safe-area-inset-top))}
+
+/* ── Panneau de notifications ──────────────────────────────── */
+.notif-panel{max-height:calc(100vh - var(--nav) - env(safe-area-inset-top) - 20px)}
+
+/* ── Éléments flottants du bas ─────────────────────────────── */
+.fab{bottom:calc(20px + env(safe-area-inset-bottom));right:calc(20px + env(safe-area-inset-right))}
+#toasts{bottom:calc(18px + env(safe-area-inset-bottom));right:calc(14px + env(safe-area-inset-right))}
+.autosave-badge{bottom:calc(14px + env(safe-area-inset-bottom));left:calc(14px + env(safe-area-inset-left))}
+
+/* ── Modales ───────────────────────────────────────────────── */
+.mbg, .detail-overlay, .onboard-overlay{
+  padding-top:calc(18px + env(safe-area-inset-top));
+  padding-bottom:calc(18px + env(safe-area-inset-bottom));
+}
+
+/* ── Contenu ───────────────────────────────────────────────── */
+@media(max-width:700px){
+  .page, .split-form, .split-panel{
+    padding-bottom:calc(24px + env(safe-area-inset-bottom));
+  }
+}

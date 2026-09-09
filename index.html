@@ -91,6 +91,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" defer></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="assets/css/styles.css"/>
+<!-- Encoches iOS : réserve la barre d'état et la barre d'accueil en mode
+     application. Doit rester APRÈS styles.css pour prendre le dessus. -->
+<link rel="stylesheet" href="assets/css/safe-area.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 
 <!-- Styles inline conservés du fichier original -->
@@ -2047,9 +2050,6 @@ function resetSimEndettement() {
 <script src="assets/js/modules/visite.js"></script>
 <script src="assets/js/modules/objectif-rentabilite.js"></script>
 <script src="assets/js/lq-pdf.js"></script>
-<!--  · radar-auto.js             → déclenche calc() puis exportPDF() sur ?auto=pdf
-        (appelé par l'extension ImmoSim Radar depuis une annonce)
-        Il vient après lq-pdf.js : c'est l'exportPDF redéfini qu'il doit trouver. -->
 <script src="assets/js/radar-auto.js"></script>
 
 
