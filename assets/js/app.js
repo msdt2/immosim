@@ -1723,7 +1723,7 @@ Réponds UNIQUEMENT en JSON valide, sans markdown.`;
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:600,messages:[{role:'user',content:prompt}]})
     });
     const data=await resp.json();
     const txt=data.content?.map(b=>b.text||'').join('')||'';
@@ -2845,7 +2845,7 @@ async function extraire(){
 {"prixAchat":number|null,"surface":number|null,"ville":string|null,"typeBien":string|null,"dpe":string|null,"loyerMensuel":number|null,"fraisAgence":number|null,"taxeFonciere":number|null,"chargesCopro":number|null,"provisions":number|null,"travaux":number|null,"description":string|null}
 ANNONCE: ${texte}`;
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':cle,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':cle,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:800,messages:[{role:'user',content:prompt}]})});
     if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+resp.status)}
     const data=await resp.json();
     iaData=JSON.parse(data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim());
@@ -5221,7 +5221,7 @@ function loadDemoListings(){
 const API_PROVIDERS={
   anthropic:{
     url:'https://api.anthropic.com/v1/messages',
-    model:'claude-sonnet-4-20250514',
+    model:'claude-sonnet-5-5',
     keyPlaceholder:'sk-ant-api03-…',
     help:'ℹ <strong>Anthropic :</strong> clé sk-ant-api03-… depuis console.anthropic.com<br/><strong>Dans Claude.ai :</strong> fonctionne sans clé.',
     buildHeaders(key){
@@ -5238,7 +5238,7 @@ const API_PROVIDERS={
   },
   openrouter:{
     url:'https://openrouter.ai/api/v1/chat/completions',
-    model:'anthropic/claude-sonnet-4-20250514',
+    model:'anthropic/claude-sonnet-5-5',
     keyPlaceholder:'sk-or-… ou sk-…',
     help:'ℹ <strong>OpenRouter :</strong> clé depuis openrouter.ai/keys<br/>Supporte Claude, GPT, Mistral, etc. Format OpenAI compatible.',
     buildHeaders(key){return{'Content-Type':'application/json','Authorization':'Bearer '+key,'HTTP-Referer':'https://immosim.app','X-Title':'ImmoSim V9'};},
@@ -5247,7 +5247,7 @@ const API_PROVIDERS={
   },
   custom:{
     url:'http://localhost:3456/api/messages',
-    model:'claude-sonnet-4-20250514',
+    model:'claude-sonnet-5-5',
     keyPlaceholder:'votre clé sk-…',
     help:'ℹ <strong>Proxy local :</strong> lancez le proxy (node proxy.js) puis collez votre clé ici.<br/>Endpoint par défaut : localhost:3456',
     buildHeaders(key){return{'Content-Type':'application/json','Authorization':'Bearer '+key};},
