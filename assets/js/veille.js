@@ -70,6 +70,8 @@
         statut: a.statut || 'nouvelle', firstSeen: a.firstSeen, updatedAt: a.updatedAt,
         loyerNature: a.loyerNature, loyerExtrait: a.loyerExtrait ? esc(a.loyerExtrait) : '',
         nbLots: a.nbLots, localCommercial: !!a.localCommercial, rentaCible: a.rentaCible || 10,
+        loyerPotentiel: a.loyerPotentiel || null, rentaPotentielle: a.rentaPotentielle || null,
+        detailLots: a.detailLots || null, villeCible: !!a.villeCible, distanceKm: a.distanceKm ?? null,
         prixInitial: a.prixInitial || a.prix, historiquePrix: a.historiquePrix || [],
         liens: (a.liens || []).map(x => ({ url: x.url, site: esc(x.site) })),
         contact: a.contact ? { agence: esc(a.contact.agence), nom: esc(a.contact.nom), tel: esc(a.contact.tel), ref: esc(a.contact.ref) } : null,
@@ -213,7 +215,7 @@
     }
     const qf = $('qfBar');
     if (qf && !$('vlChipVeille')) {
-      [['veille', '📡 Veille', 'vlChipVeille'], ['cible', '🎯 Veille ≥ cible', 'vlChipCible']].forEach(([k, label, id]) => {
+      [['veille', '📡 Veille', 'vlChipVeille'], ['cible', '🎯 Veille ≥ cible', 'vlChipCible'], ['villes', '⭐ Villes cibles', 'vlChipVilles']].forEach(([k, label, id]) => {
         const s = document.createElement('span');
         s.className = 'qf-chip'; s.id = id; s.textContent = label;
         s.addEventListener('click', () => applyChip(k));
@@ -237,10 +239,17 @@
     if (!hasApp()) return;
     activeChip = kind;
     document.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
-    const chip = $(kind === 'cible' ? 'vlChipCible' : 'vlChipVeille'); if (chip) chip.classList.add('active');
+    const chip = $({ cible: 'vlChipCible', villes: 'vlChipVilles' }[kind] || 'vlChipVeille'); if (chip) chip.classList.add('active');
     if (typeof activeQF !== 'undefined') { try { activeQF = 'veille'; } catch (e) {} }
     // « ≥ cible » ne retient que les loyers lus dans l'annonce, jamais l'estimation marché
-    filteredListings = listings.filter(l => l.fromVeille && (kind !== 'cible' || (l.veille?.loyerNature !== 'estimation marché' && l.rentBrute >= (l.veille?.rentaCible || 10))));
+    filteredListings = listings.filter(l => {
+      if (!l.fromVeille) return false;
+      const v = l.veille || {};
+      if (kind === 'villes') return v.villeCible;
+      if (kind !== 'cible') return true;
+      // « ≥ cible » : loyer lu dans l'annonce (jamais l'estimation marché), actuel ou tout loué
+      return v.loyerNature !== 'estimation marché' && (l.rentBrute >= (v.rentaCible || 10) || (v.rentaPotentielle || 0) >= (v.rentaCible || 10));
+    });
     if (typeof sortListings === 'function') sortListings(); else renderListings();
   }
 
@@ -268,8 +277,11 @@
       if (v.statut === 'nouvelle' && !seen.has(l.meloUuid)) flags.push('<span class="vl-flag vl-new">Nouvelle</span>');
       const h = v.historiquePrix; if (h && h.length) { const pct = Math.round((l.prix - v.prixInitial) / v.prixInitial * 100); if (pct) flags.push('<span class="vl-flag vl-drop">' + (pct > 0 ? '+' : '') + pct + ' % depuis ' + euro(v.prixInitial) + '</span>'); }
       if (v.localCommercial) flags.push('<span class="vl-flag vl-com">Local commercial mentionné</span>');
+      if (v.villeCible) flags.unshift('<span class="vl-flag vl-new">⭐ Ville cible</span>');
       if (v.nbLots) flags.push('<span class="vl-flag">' + v.nbLots + ' lots</span>');
-      const loyer = l.loyer ? euro(l.loyer) + '/mois · ' + esc(v.loyerNature || '') : 'loyer inconnu';
+      if (v.distanceKm != null) flags.push('<span class="vl-flag">' + v.distanceKm + ' km</span>');
+      const loyer = (l.loyer ? euro(l.loyer) + '/mois · ' + esc(v.loyerNature || '') : 'loyer inconnu') +
+        (v.loyerPotentiel ? ' · tout loué ' + euro(v.loyerPotentiel) + ' (' + String(v.rentaPotentielle).replace('.', ',') + ' %)' : '');
       const cible = l.loyerAn ? euro(l.loyerAn / (v.rentaCible / 100) - (l.travaux || 0)) : '—';
       const strip = document.createElement('div');
       strip.className = 'vl-strip';
@@ -302,7 +314,10 @@
       const ecart = Math.round((1 - pc / l.prix) * 100);
       r('Prix pour ' + v.rentaCible + ' % brut', '<b style="color:var(--gold)">' + euro(pc) + '</b> ' + (ecart > 0 ? '(−' + ecart + ' % à négocier)' : '(déjà sous ce prix)'));
     }
+    if (v.loyerPotentiel) r('Tout loué', euro(v.loyerPotentiel) + '/mois, soit ' + String(v.rentaPotentielle).replace('.', ',') + ' % brut · prix à ' + v.rentaCible + ' % : ' + euro(v.loyerPotentiel * 12 / (v.rentaCible / 100)));
+    if (v.detailLots && v.detailLots.length) r('Lots chiffrés', v.detailLots.map(x => euro(x.montant) + (x.statut === 'vacant' ? ' (vacant)' : ' (loué)')).join(' + '));
     if (v.nbLots) r('Nombre de lots', v.nbLots);
+    if (v.distanceKm != null) r('Distance', v.distanceKm + ' km de Douai' + (v.villeCible ? ' · ⭐ ville cible' : ''));
     if (v.historiquePrix.length) r('Historique du prix', [euro(v.prixInitial)].concat(v.historiquePrix.map(p => euro(p.nouveau))).join(' → '));
     if (v.localCommercial) r('Point bloquant', '<span style="color:var(--ru)">local commercial mentionné — à vérifier</span>');
     if (v.contact && (v.contact.agence || v.contact.tel)) r('Contact', [v.contact.agence, v.contact.nom, v.contact.tel ? '<a href="tel:' + v.contact.tel.replace(/\s/g, '') + '" style="color:var(--gold)">' + v.contact.tel + '</a>' : '', v.contact.ref ? 'réf. ' + v.contact.ref : ''].filter(Boolean).join(' · '));
